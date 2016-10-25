@@ -1,0 +1,139 @@
+﻿
+<!DOCTYPE html>
+<html>
+<head>
+    <title>D咨询门店通</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
+    <meta name="format-detection" content="telephone=no">
+    <meta name="format-detection" content="email=no">
+    <link href="../js/style.css" rel="stylesheet" type="text/css" />
+    <link href="../js/mask/jquery.loadmask.css" rel="stylesheet" type="text/css" />
+    <style>
+        .splist li {padding:5px !important;}
+        .splist li a {width:100%;display:block;}
+    </style>
+</head>
+<body>
+    <form id="form1">
+        <div id="content" class="page">
+            <div class="header">
+                <toolbar><a href="javascript:LoadUrl('../Index.html','Index.html')" class="bakLink" rel="external" ></a></toolbar>
+                <tit>D咨询门店通-用户权限</tit>
+                <toolbar><a href="javascript:LoadUrl('../Index.html','Index.html')" class="setLink" rel="external" style="visibility:hidden;" ></a></toolbar>
+                <ul class="search">
+                    <li>
+                        <input type="text" placeholder="输入姓名进行搜索" id="txtKey" value="" style="width:100%;border:none;margin:0px !important;" autofocus>
+                    </li>
+                    <li class="searchTit">
+                        人员数量：<span id="spAll"></span>
+                    </li>
+                </ul>
+            </div>
+            <div class="splist">
+                <ul id="spList"></ul>
+            </div>
+        </div>
+    </form>
+    <SCRIPT src="../js/dapp.js" type="text/javascript"></SCRIPT>
+    
+<script type="text/javascript" src="../js/loadjs.js"></script>
+<script>
+    LoadJs("js/jquery.min.js", "../");
+    LoadJs("js/common.js", "../");
+    LoadJs("js/fastclick.js", "../");
+</script>
+<SCRIPT src="../js/mask/jquery.loadmask.js" type="text/javascript"></SCRIPT>
+<script language="javascript">
+    
+    function DownloadData()
+    {
+        $("body").mask("正在载入，请稍候...");
+        
+        CheckNet(function(){
+            $.ajax ({
+                type:"post",
+                url:__url + "/Mobile/Api/SysService.ashx",
+                dataType:"html",
+                data:"action=user&showAll=1&userId=" + __userId + "&manageId=" + __manageId + "&shopId=" + __shopId + "&powerFDBH=" + __powerFDBH,
+                timeout:10000,
+                success:function(data){
+                    LoadList(data);
+                },
+                complete: function (XHR, TS) { XHR = null; },
+                error: function (XMLHttpRequest, textStatus, errorThrown) { 
+                    ShowErr();
+                } 
+            });
+        }, function(){
+            ShowErr();
+            return;
+        });
+    }
+    function ShowErr()
+    {
+        $("#spList").html("对不起，无法连接服务器，请您稍候再试");
+        $("body").unmask();
+    }
+    function LoadList(d)
+    {
+        if(d=="")
+        {
+            $("#spList").html("无数据");
+            $("body").unmask();
+            return;
+        }
+        var str = "";
+	    var data = eval(d);
+	    $.each(data, function(i,item){
+	        str += "<li><a href='javascript:LoadUrl(\"Edit.html?mid=" + item.manageID + "\", \"UserSet/Edit.html?mid=" + item.manageID + "\")'><t>";
+	        str += item.manageID + "</t><fl>" + item.job + "</fl><div class='cls'></div><nm1>" + item.manageName + "</nm1><flag>" + item.fdbh + "</flag>";
+	        str += "</a></li>";
+		});
+        $("#spList").html(str);
+        $("#spAll").html(data.length);
+        
+        Filter();
+        
+        $("body").unmask();
+    }
+    
+    $().ready(function(){
+        DownloadData();
+        $("#txtKey").width($(window).width()-10);
+    })
+    
+    InitWrapForInputScroll("content", 0, 70, ""); 
+    
+    $("#txtKey").bind("keydown",function(e){
+        if(!e) e = window.event;
+        if((e.keyCode || e.which) == 13){
+            Filter();
+        }
+    });
+    $.expr[':'].icontains = function(obj, index, meta, stack){
+        return (obj.textContent || obj.innerText || jQuery(obj).text() || '').toLowerCase().indexOf(meta[3].toLowerCase()) >= 0;
+    };
+    
+    function Filter()
+    {
+        $("#spList li").hide().each(function(){
+            if($("#txtKey").val()=="" || $(this).find("t").html().indexOf($("#txtKey").val())>=0
+                 || $(this).find("nm1").html().indexOf($("#txtKey").val())>=0)
+            {
+                $(this).show();
+            }
+        });
+        
+        $("#spAll").html($("#spList li:visible").length);
+    }
+    function HideAll()
+    {
+        $.each(TallyData, function(i,item){
+	        item.V = "0";
+		});
+    }
+    
+</script>
+</body>
+</html>

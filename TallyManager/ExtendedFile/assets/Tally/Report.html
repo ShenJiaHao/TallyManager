@@ -1,0 +1,802 @@
+﻿
+<!DOCTYPE html>
+<html>
+<head>
+    <title>D咨询门店通</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
+    <meta name="format-detection" content="telephone=no">
+    <meta name="format-detection" content="email=no">
+    <link href="../js/style.css" rel="stylesheet" type="text/css" />
+    <link href="../js/mask/jquery.loadmask.css" rel="stylesheet" type="text/css" />
+    <style>
+        html,body {overflow:hidden;}
+        bt {height:auto !important;}
+        nm {height:30px !important;line-height:30px !important;}
+        qt {color:#333;display:block;font-size:12px;}
+        .lkb {background:#fff; text-align:left !important;}
+        .lk {color:#336699;background:#fff;}
+        .lk:active {color:#ff0000;background:#eee;}
+        .lkl {color:#336699;background:#fff;text-align:left !important;}
+        .lkl:active {color:#ff0000;background:#eee;text-align:left !important;}
+        .fixedHead {position:fixed;}
+        
+        .searchInfo {height:36px;}
+        .searchInfo span {height:36px;display:inline-block}
+    </style>
+</head>
+<body>
+    <form id="form1">
+        <input type=hidden id="hFd" value="*" />
+        <div id="content" class="page">
+            <div class="header">
+                <toolbar><a href="javascript:LoadUrl('../Index.html','Index.html')" rel="external" class="bakLink" ></a></toolbar>
+                <tit>D咨询门店通-理货报告</tit>
+                <toolbar><a href="javascript:LoadUrl('../Index.html','Index.html')" class="setLink" rel="external" style="visibility:hidden;" ></a></toolbar>
+                <ul class="search">
+                    <li>
+                        <select id="selFlag" style="width:22%;border:none;margin:0px !important;display:none;" onchange="Filter()">
+                            <option value="" selected=selected>全部类型</option>
+                            <option value="状态异常">状态异常</option>
+                            <option value="大库存">大库存</option>
+                            <option value="负库存">负库存</option>
+                            <option value="不动销">不动销</option>
+                            <option value="临期">临期</option>
+                        </select>
+                        <select id="selFl" style="width:32%;border:none;margin:0px !important;" onchange="Filter()">
+                            <option value="" selected=selected>全部分类</option>
+                        </select>
+                        <select id="selFd" style="width:32%;border:none;margin:0px !important;" onchange="Filter()">
+                            <option value="" selected=selected>全部分店</option>
+                        </select>
+                        <input type="text" placeholder="搜索" id="txtKey" value="" style="width:32%;border:none;margin:0px !important;" autofocus>
+                    </li>
+                    <li class="searchTit">
+                        <tx1>时间段：<select id="selTime" onchange="Filter()" style="width:200px;"></select></tx1>
+                    </li>
+                </ul>
+            </div>
+            <div id="menu" style="overflow:auto;">
+            </div>
+        </div>
+        
+        <!-- 分类汇总界面 -->
+        <div id="fl" class="page" style="display:none;position:absolute;top:0px;right:-500px;width:100%;height:100%;background-color:#fff;overflow:hidden;z-index:999;">
+            <div class="header">
+                <toolbar><a href="javascript:TgPage();" rel="external" class="bakLink" ></a></toolbar>
+                <tit>D咨询门店通-理货报告</tit>
+                <toolbar><a href="javascript:LoadUrl('../Index.html','Index.html')" class="setLink" rel="external" style="visibility:hidden;" ></a></toolbar>
+                
+                <div class="searchInfo">
+                    <span id="liFl"></span> 
+                    <span id="liFd"></span>  
+                    <span id="liKey"></span>
+                </div>
+                <div class="searchTit">
+                    <tx1>时间段：<span id="liTime"></span></tx1>
+                </div>
+            </div>
+            <div id="menu1" style="overflow:auto;">
+            </div>
+        </div>
+        
+        <!-- 详情界面 -->
+        <div id="list" class="pg" style="display:none;position:absolute;top:0px;right:-500px;width:100%;height:100%;background-color:#fff;overflow:hidden;z-index:999;">
+            <div class="header" style="position:absolute;z-index:2100;top:0px;left:0px;overflow:hidden;">
+                <toolbar><a href="javascript:TgPage();" rel="external" class="bakLink" ></a></toolbar>
+                <tit>D咨询门店通-理货报告</tit>
+                <toolbar><a href="javascript:LoadUrl('../Index.html','Index.html')" class="setLink" rel="external" style="visibility:hidden;" ></a></toolbar>
+                <ul class="search">
+                    <select id="selState" style="width:32%;border:none;margin:0px !important;" onchange="InitMxEx()">
+                        <option value="" selected=selected>全部</option>
+                        <option value="0">未处理</option>
+                        <option value="1">已处理</option>
+                        <option value="2">库存差异</option>
+                    </select>
+                    <select id="selFl1" style="width:32%;border:none;margin:0px !important;" onchange="InitMxEx()">
+                        <option value="" selected=selected>全部分类</option>
+                    </select>
+                    <input type="text" placeholder="搜索" id="txtKey1" value="" style="width:32%;border:none;margin:0px !important;" autofocus>
+                </ul>
+            </div>
+            <div id="dBox" style="margin-top:92px;overflow:auto !important;">
+                <ul id="spList"></ul>
+            </div>
+        </div>
+        <!-- 单个详情界面 -->
+        <div id="details" class="pg" style="display:none;position:absolute;top:0px;right:-500px;width:100%;height:100%;background-color:#fff;overflow:hidden;z-index:1000;">
+            <div class="header" style="position:absolute;z-index:2100;top:0px;left:0px;overflow:hidden;">
+                <toolbar><a href="javascript:TgPage();" rel="external" class="bakLink" ></a></toolbar>
+                <tit>D咨询门店通-理货报告</tit>
+                <toolbar><a href="javascript:LoadUrl('../Index.html','Index.html')" class="setLink" rel="external" style="visibility:hidden;" ></a></toolbar>
+            </div>
+            <div id="dtBox" class="box" style="margin-top:56px;overflow:auto !important;">
+            </div>
+        </div>
+    </form>
+    <SCRIPT src="../js/dapp.js" type="text/javascript"></SCRIPT>
+    
+<script type="text/javascript" src="../js/loadjs.js"></script>
+<script type="text/javascript" src="../js/Bridge.js"></script>
+<script>
+    LoadJs("js/jquery.min.js", "../");
+    LoadJs("js/common.js", "../");
+    LoadJs("js/fastclick.js", "../");
+    LoadJs("js/echarts/echarts.min.js", "../");
+    LoadJs("js/mask/jquery.loadmask.js", "../");
+</script>
+<script language="javascript">
+    
+    function DownloadData()
+    {
+        $("body").mask("正在载入，请稍候...");
+        InitSort();
+        InitFD();
+        Filter();
+    }
+    
+    function Filter()
+    {
+        if($("#hFd").val()!=$("#selFd").val())
+        {
+            InitTaskTime(LoadReport);
+            $("body").unmask();
+            return;
+        }
+        LoadReport();
+    }
+    function LoadReport()
+    {
+        $.ajax ({
+            type:"post",
+            url:__url + "/Mobile/Api/DataService.ashx",
+            dataType:"html",
+            data:"action=loadTallyReportNew&userId=" + __userId + "&shopId=" + $("#selFd").val() + "&flag=" + escape($("#selFlag").val()) 
+                    + "&fl=" + $("#selFl").val() + "&tasktime=" + $("#selTime").val() + "&powerFDBH=" + __powerFDBH,
+            timeout:10000,
+            success:function(data){
+                if(data!="")
+                {
+                    LoadList(data);
+                    return;
+                }
+                $("#menu").html("<div class='c'>对不起，没有符合条件的数据！</div>");
+                $("body").unmask();
+            },
+            complete: function (XHR, TS) { XHR = null; },
+            error: function (XMLHttpRequest, textStatus, errorThrown) { 
+                $("body").unmask();
+                $("#menu").html("<div class='c'>对不起，读取数据错误！</div>");
+            } 
+        });
+    }
+    function LoadList(d)
+    {
+        var str = "<table class='report fixedHead' id='tbHead' cellpadding=0 cellspacing=0><thead><tr><th class='la'>分店</th><th>总记录</th><th>已处理</th><th>库存差异</th></tr></thead></table>";
+        str = str + "<table class='report' cellpadding=0 cellspacing=0 id='tbFd'><thead><tr><th class='la'>分店</th><th>总记录</th><th>已处理</th><th>库存差异</th></tr></thead><tbody>";
+        var data = eval(d);
+	    $.each(data, function(i,item){
+	        str += "<tr><td class='lkl' onclick='InitFl(\"" + item.sFdbh + "\",\"" + item.sFdmc + "\")'>" + item.sFdbh + ":" + item.sFdmc + "</td><td class='lk' onclick='InitMx(\"" + item.sFdbh + "\", \"\")'>" + item.All 
+	            + "</td><td class='lk' onclick='InitMx(\"" + item.sFdbh + "\", \"1\")'>" + item.Checked 
+	            + "</td><td class='lk' onclick='InitMx(\"" + item.sFdbh + "\", \"2\")'>" + item.Checked_KC + "</td></tr>";
+	    });
+		str += "</tbody></table>";
+		
+        $("#menu").html(str);
+        
+        //初始化表头宽度
+        var row = document.getElementById("tbHead").rows[0];
+        var rowFd = document.getElementById("tbFd").rows[0];
+        for(var i=0;i<row.cells.length;i++)
+        {
+            $(row.cells[i]).width($(rowFd.cells[i]).width());
+        }
+        
+        //InitCharts(data);
+	    
+        $("body").unmask();
+    }
+    
+    var __cur_fdbh;
+    var __cur_state;
+    function InitFl(fdbh, fdmc)
+    {
+        __cur_fdbh = fdbh;
+        $("#liFl").html(document.getElementById("selFl").options[document.getElementById("selFl").selectedIndex].text);
+        $("#liFd").html(fdmc);
+        $("#liKey").html($("#txtKey").val());
+        if($("#liKey").html()=="")
+        {
+            $("#liKey").html("全部");
+        }
+        $("#liTime").html($("#selTime").val());
+        if($("#liTime").html()=="")
+        {
+            $("#liTime").html("最新计算结果");
+        }
+        if(window.dapp!=undefined)
+        {
+            if(window.dapp.SetSwipePage!=undefined)
+            {
+                window.dapp.SetSwipePage();
+            }
+        }
+        
+        __PageArray.push("fl");
+        
+        TgPage(InitFlEx);
+    }
+    function InitFlEx()
+    {
+        $("body").mask("正在载入，请稍候...");
+        
+        $.ajax ({
+            type:"post",
+            url:__url + "/Mobile/Api/DataService.ashx",
+            dataType:"html",
+            data:"action=loadTallyReportFl&userId=" + __userId + "&shopId=" + __cur_fdbh + "&flag=" + escape($("#selFlag").val()) 
+                    + "&fl=" + $("#selFl").val() + "&key=" + $("#txtKey1").val() + "&tasktime=" + $("#selTime").val() + "&powerFDBH=" + __powerFDBH,
+            timeout:10000,
+            success:function(d){
+                if(d!="")
+                {
+                    var str = "<table class='report fixedHead' id='tbHeadFl' cellpadding=0 cellspacing=0><thead><tr><th class='la'>分类</th><th>总记录</th><th>已处理</th><th>库存差异</th></tr></thead></table>";
+                    str = str + "<table class='report' cellpadding=0 cellspacing=0 id='tbFl'><thead><tr><th class='la'>分类</th><th>总记录</th><th>已处理</th><th>库存差异</th></tr></thead><tbody>";
+                    var data = eval(d);
+                    $.each(data, function(i,item){
+                        str += "<tr><td class='lkb'>" + item.sFlmc + "</td><td class='lk' onclick='InitMx(\"" + __cur_fdbh + "\", \"\", \"" + item.sFlbh + "\")'>" + item.All 
+                            + "</td><td class='lk' onclick='javascript:$(\"#selFl1\").val(\"" + item.sFlbh + "\");InitMx(\"" + __cur_fdbh + "\", \"1\", \"" + item.sFlbh + "\")'>" + item.Checked 
+                            + "</td><td class='lk' onclick='javascript:$(\"#selFl1\").val(\"" + item.sFlbh + "\");InitMx(\"" + __cur_fdbh + "\", \"2\", \"" + item.sFlbh + "\")'>" + item.Checked_KC + "</td></tr>";
+                    });
+	                str += "</tbody></table>";
+	                
+                    $("#menu1").html(str);
+	                //初始化表头宽度
+                    var row = document.getElementById("tbHeadFl").rows[0];
+                    var rowFd = document.getElementById("tbFl").rows[0];
+                    for(var i=0;i<row.cells.length;i++)
+                    {
+                        $(row.cells[i]).width($(rowFd.cells[i]).width());
+                    }
+                    $("body").unmask();
+                }
+                else
+                {
+                    $("#menu1").html("<div class='c'>对不起，没有符合条件的数据！</div>");
+                }
+                $("body").unmask();
+            },
+            complete: function (XHR, TS) { XHR = null; },
+            error: function (XMLHttpRequest, textStatus, errorThrown) { 
+                $("#menu1").html("<div class='c'>对不起，读取数据错误！</div>");
+                $("body").unmask();
+            } 
+        });
+    }
+    
+    function InitMx(fdbh, state, fl)
+    {   
+        __cur_fdbh = fdbh;
+        __cur_state = state;
+        $("#selState").val(state);
+        if(fl==undefined)
+        {
+            $("#selFl1").val($("#selFl").val());
+        }
+        else
+        {
+            $("#selFl1").val(fl);
+        }
+        if(window.dapp!=undefined)
+        {
+            if(window.dapp.SetSwipePage!=undefined)
+            {
+                window.dapp.SetSwipePage();
+            }
+        }
+        
+        __PageArray.push("list");
+        
+        TgPage(InitMxEx);
+    }
+    
+    
+    var stopScroll = true; 
+    var PageSize = 50;
+    var CurRecordIndex = 0;
+    var MaxScrollTop = 0;
+    
+    function InitMxEx()
+    {
+        $("body").mask("正在载入，请稍候...");
+        
+        $.ajax ({
+            type:"post",
+            url:__url + "/Mobile/Api/DataService.ashx",
+            dataType:"html",
+            data:"action=loadTallyReportDetails&userId=" + __userId + "&shopId=" + __cur_fdbh + "&flag=" + escape($("#selFlag").val()) 
+                    + "&fl=" + $("#selFl1").val() + "&state=" + $("#selState").val() + "&key=" + $("#txtKey1").val() + "&tasktime=" + $("#selTime").val() + "&powerFDBH=" + __powerFDBH,
+            timeout:10000,
+            success:function(data){
+                if(data!="")
+                {
+                    localStorage.removeItem("tallyDataReport");
+                    localStorage.setItem("tallyDataReport", data);
+                    CurRecordIndex = 0;
+                    LoadMx();
+                }
+                else
+                {
+                    $("#spList").html("<div class='c'>对不起，没有符合条件的数据！</div>");
+                }
+                $("body").unmask();
+            },
+            complete: function (XHR, TS) { XHR = null; },
+            error: function (XMLHttpRequest, textStatus, errorThrown) { 
+                $("#spList").html("<div class='c'>对不起，读取数据错误！</div>");
+                $("body").unmask();
+            } 
+        });
+    }
+    
+    
+    function LoadMx()
+    {
+        var dataStr = localStorage.getItem("tallyDataReport");
+        if(dataStr==undefined || dataStr==null || dataStr=="")
+        {
+            return;
+        }
+        
+        var str = "";
+	    var data = eval(dataStr);
+	    
+	    var beginIdx = CurRecordIndex;
+        var endIdx = data.length;
+        if(endIdx>=(CurRecordIndex+PageSize))
+        {
+            endIdx = CurRecordIndex + PageSize;
+        }
+        
+	    for(var i=beginIdx;i<endIdx;i++)
+        {
+            var item = data[i];
+	        str += "<li><a href='javascript:InitData(\"" + item.sSpbh + "\")'><tp><t>";
+	        str += item.sSpbh + "</t><flag>";
+	        
+	        if(item.sFlbh=="")
+            {
+                str += "无分类信息";
+            }
+            else
+            {
+                str += item.sFlmc;
+            }
+	        
+	        str += "</flag></tp><bt><nm>" + item.sSpmc + "</nm><qt>处理结果：";
+	        if(item.CheckFlag=="")
+	        {
+	            str += "未处理";
+	        }
+	        else
+	        {
+	            str += item.CheckFlag;
+	        } 
+	        str += "</qt>";
+	        if(item.CheckFlag.indexOf("库存问题")>=0)
+	        {
+	            str += "<qt>库存：" + item.CheckSl + "&nbsp;&nbsp;|&nbsp;&nbsp;库存差异：" + item.Kccy + "</qt>";
+	        }
+	        if(item.CheckFlag.indexOf("其他")>=0)
+	        {
+	            str += "<qt>备注：" + item.CheckMemo + "</qt>";
+	        }
+	        if(item.CheckFlag.indexOf("保质期")>=0)
+	        {
+	            str += "<qt>生产日期：" + item.ProductionDate + "</qt>";
+	        }
+	        str += "<fl>" + item.sFlmc + "</fl><flbh>" + item.sFlbh + "</flbh>";
+	        str += "<ct>" + item.CheckTime + "</ct></bt></a></li>";
+		}
+		if(CurRecordIndex==0)
+        {
+            $("#spList").html(str);
+        }
+        else
+        {
+            $("#spList").html($("#spList").html() + str);
+        }
+        CurRecordIndex = endIdx;
+        MaxScrollTop = parseFloat($("#spList").height()) - parseFloat($(window).height()) - 90;
+    }
+    
+    var __cur_spbh;
+    function InitData(sspbh)
+    {   
+        __cur_spbh = sspbh;
+        if(window.dapp!=undefined)
+        {
+            if(window.dapp.SetSwipePage!=undefined)
+            {
+                window.dapp.SetSwipePage();
+            }
+        }
+        
+        __PageArray.push("details");
+        
+        TgPage(InitDataEx);
+    }
+    function InitDataEx()
+    {
+        //$("#dtBox").mask("正在载入，请稍候...");
+        
+        $.ajax ({
+            type:"post",
+            url:__url + "/Mobile/Api/DataService.ashx",
+            dataType:"html",
+            data:"action=loadTallyReportDetailsById&userId=" + __userId + "&shopId=" + __cur_fdbh + "&flag=" + escape($("#selFlag").val()) 
+                    + "&fl=" + $("#selFl").val() + "&spbh=" + __cur_spbh + "&tasktime=" + $("#selTime").val()+ "&powerFDBH=" + __powerFDBH,
+            timeout:10000,
+            success:function(data){
+                if(data!="")
+                {
+                    LoadMxDetails(data);
+                    return;
+                }
+                $("#dtBox").html("<div class='c'>对不起，没有符合条件的数据！</div>");
+                //$("#dtBox").unmask();
+            },
+            complete: function (XHR, TS) { XHR = null; },
+            error: function (XMLHttpRequest, textStatus, errorThrown) { 
+                $("#dtBox").html("<div class='c'>对不起，读取数据错误！</div>");
+                //$("#dtBox").unmask();
+            } 
+        });
+    }
+    function LoadMxDetails(dataStr)
+    {
+        var data = eval(dataStr);
+	    $.each(data, function(i,obj){
+	        var str = "";
+            str += "<top><tx id='t'>" + obj.sSpmc + "</tx></top>";
+            str += "<div><ul>";
+            str += "<li><lab>商品条码</lab><txt id='spbh'>" + obj.sSpbh + "</txt></li>";
+            str += "<li><lab>商品分类</lab><txt>"
+            if(obj.sFlbh=="")
+            {
+                str += "无分类信息";
+            }
+            else
+            {
+                str += obj.sFlbh + "：" + obj.sFlmc;
+            }
+            str +="</txt></li>";
+            str += "<li><labl>零售价</labl><txtl id='lsj'>" + obj.nLsj + "</txtl><labl>期末库存</labl><txtr id='qmkc'>" + obj.nQmkc + "</txtr></li>";
+            //str += "<li><labl>日均销量</labl><txtl id='rjxl'>" + obj.nRjxl + "</txtl><labl>异常类型</labl><txtr>" + obj.Flag + "</txtr></li>";
+            if(obj.Flag=="销售异常")
+            {
+                str += "<li><labl>日均销量</labl><txtl id='rjxl'>" + obj.nRjxl + "</txtl><labl>未销天数</labl><txtr id='wxts'>" + obj.nQmwxts + "</txtr></li>";
+            }
+            else
+            {
+                str += "<li><lab>日均销量</lab><txt id='rjxl'>" + obj.nRjxl + "</txt></li>";
+            }
+            
+            str += "<li><lab>处理结果</lab><txt>";
+            if(obj.CheckFlag=="")
+            {
+                str += "未处理";
+            }
+            else
+            {
+                str += obj.CheckFlag;
+            }
+            str += "</txt></li>";
+            str += "<li id='liFlag'";
+            if(obj.CheckFlag.indexOf("其他")<0)
+            {
+                str += " style='display:none;'";
+            }
+            str += "><lab>其他原因：</lab><txt>" + obj.CheckMemo + "</txt></li>";
+            
+            str += "<li id='liKc'";
+            if(obj.CheckFlag.indexOf("库存问题")<0)
+            {
+                str += " style='display:none;'";
+            }
+            str += "><lab>库存数量</lab><txt>";
+            str += obj.CheckSl;
+            if(obj.BeforeAcceptance=="0")
+            {
+                str += "(到货前)";
+            }
+            else
+            {
+                str += "(到货后)";
+            }
+            str += "</txt></li>";
+            str += "<li id='liKccy'";
+            if(obj.CheckFlag.indexOf("库存问题")<0)
+            {
+                str += " style='display:none;'";
+            }
+            str += "><lab>库存差异</lab><txt>";
+            str += obj.Kccy;
+            str += "</txt></li>";
+            
+            str += "<li id='liProductionDate'";
+            if(obj.CheckFlag.indexOf("保质期")<0)
+            {
+                str += " style='display:none;'";
+            }
+            str += "><lab>生产日期：</lab><txt>" + obj.ProductionDate + "</txt></li>";
+            
+            str += "<li><lab>处理时间</lab><txt>";
+            if(obj.CheckFlag!="")
+            {
+                str += obj.CheckTime;
+            }
+            str += "</txt></li>";
+		    str += "</ul></div>";
+            $("#dtBox").html(str);
+            return;
+		});
+    }
+    
+    var __PageArray = new Array();
+    
+    function TgPage(callback)
+    {
+        var dn = __PageArray.pop();
+        
+        //返回
+        if(callback==undefined)
+        {
+            if(__PageArray.length>0)
+            {
+                if(window.dapp!=undefined)
+                {
+                    if(window.dapp.SetSwipePage!=undefined)
+                    {
+                        window.dapp.SetSwipePage();
+                    }
+                }
+            }
+        }
+        
+        if($("#" + dn).css("right")=="0px")
+        {
+            $("#" + dn).css("border-left", "solid 1px #bbb");
+            $("#" + dn).animate({right: 0-$(window).width()}, 200, function(){
+                $("#" + dn).css("display", "none");
+                $("#" + dn).css("border-left", "none");
+            });
+        }
+        else
+        {
+            $("#" + dn).css("display", "");
+            $("#" + dn).width($(window).width());
+            $("#" + dn).height($(window).height());
+            $("#" + dn).css("border-left", "solid 1px #bbb");
+            $("#" + dn).animate({right: 0}, 200, function(){
+                $("#" + dn).css("border-left", "none");
+                if(callback!=undefined)
+                {
+                    //如果是下一步，则应该继续把当前这个page压入数组
+                    __PageArray.push(dn);
+                    callback();
+                }
+            });
+        }
+    }
+    
+    $().ready(function(){
+        DownloadData();
+        $("#selFlag").width($(window).width()/3.0-10);
+        $("#selFl").width($(window).width()/3.0-10);
+        $("#selFd").width($(window).width()/3.0-10);
+        $("#txtKey").width($(window).width()/3.0-2);
+        $("#dBox").height($(window).height()-56);
+        $("#menu").height($(window).height()-148);
+        
+        
+        $("#selState").width($(window).width()/3.0-10);
+        $("#selFl1").width($(window).width()/3.0-10);
+        $("#txtKey1").width($(window).width()/3.0-2);
+        
+        $("#liFl").width($(window).width()/3.0-10);
+        $("#liFd").width($(window).width()/3.0-10);
+        $("#liKey").width($(window).width()/3.0-2);
+        $("#menu1").height($(window).height()-148);
+        
+        //可以滚动的最大高度
+        MaxScrollTop = parseFloat($("#spList").height()) - parseFloat($(window).height()) - 90;
+        
+        $("#dBox").scroll(function(){ 
+            //alert(parseFloat($("#dBox").scrollTop()));
+            if(parseFloat($("#dBox").scrollTop()) >= MaxScrollTop){ 
+                if(stopScroll){ 
+                    stopScroll = false; 
+                    LoadMx();
+                    stopScroll = true;
+                } 
+            } 
+        });
+    })
+    
+    InitWrapForInputScroll("content", 0, 70, ""); 
+    
+    $("#txtKey").bind("keydown",function(e){
+        if(!e) e = window.event;
+        if((e.keyCode || e.which) == 13){
+            Filter();
+        }
+    });
+    $("#txtKey1").bind("keydown",function(e){
+        if(!e) e = window.event;
+        if((e.keyCode || e.which) == 13){
+            InitMxEx();
+        }
+    });
+    function InitSort()
+    {
+        $.ajax ({
+            type:"post",
+            url:__url + "/Mobile/Api/SysService.ashx",
+            dataType:"html",
+            data:"action=sort&userId=" + __userId + "&manageId=" + __manageId + "&len=2",
+            timeout:10000,
+            success:function(data){
+                if(data!="")
+                {
+                    localStorage.removeItem("sortData");
+                    localStorage.setItem("sortData", data);
+                    var d = eval(data);
+                    var ele = document.getElementById("selFl");
+                    ele.options.length=0;
+                    ele.options[0] = new Option("全部分类", "");
+                    $.each(d, function(i,item){
+                        ele.options[i+1] = new Option(item.sflmc, item.sflbh);
+		            });
+		            
+		            ele = document.getElementById("selFl1");
+                    ele.options.length=0;
+                    ele.options[0] = new Option("全部分类", "");
+                    $.each(d, function(i,item){
+                        ele.options[i+1] = new Option(item.sflmc, item.sflbh);
+		            });
+                }
+            },
+            complete: function (XHR, TS) { XHR = null; },
+            error: function (XMLHttpRequest, textStatus, errorThrown) { 
+                $("#dtBox").html("<div class='c'>对不起，读取分类数据错误！</div>");
+            } 
+        });
+    }
+    function InitFD()
+    {
+        $.ajax ({
+            type:"post",
+            url:__url + "/Mobile/Api/SysService.ashx",
+            dataType:"html",
+            data:"action=fd&userId=" + __userId + "&manageId=" + __manageId + "&powerFDBH=" + __powerFDBH,
+            timeout:10000,
+            success:function(data){
+                if(data!="")
+                {
+                    localStorage.removeItem("fdData");
+                    localStorage.setItem("fdData", data);
+                    var d = eval(data);
+                    var ele = document.getElementById("selFd");
+                    ele.options.length=0;
+                    ele.options[0] = new Option("全部分店", "");
+                    $.each(d, function(i,item){
+                        ele.options[i+1] = new Option(item.sfdmc, item.sfdbh);
+		            });
+                }
+            },
+            complete: function (XHR, TS) { XHR = null; },
+            error: function (XMLHttpRequest, textStatus, errorThrown) { 
+                $("#dtBox").html("<div class='c'>对不起，读取分店数据错误！</div>");
+            } 
+        });
+    }
+    function InitTaskTime(callback)
+    {
+        $.ajax ({
+            type:"post",
+            url:__url + "/Mobile/Api/SysService.ashx",
+            dataType:"html",
+            data:"action=tasktime&userId=" + __userId + "&manageId=" + __manageId + "&fdbh=" + $("#selFd").val() + "&powerFDBH=" + __powerFDBH,
+            timeout:10000,
+            success:function(data){
+                if(data!="")
+                {
+                    localStorage.removeItem("d");
+                    localStorage.setItem("d", data);
+                    var d = eval(data);
+                    var ele = document.getElementById("selTime");
+                    ele.options.length=0;
+                    ele.options[0] = new Option("最新计算结果", "");
+                    $.each(d, function(i,item){
+                        ele.options[i+1] = new Option(item.d, item.d);
+		            });
+		            ele.selectedIndex = 0;
+		            
+		            if(callback)
+                    {
+　　　                  callback();
+　　　              }
+                    $("#hFd").val($("#selFd").val());
+                }
+                else
+                {
+                    var ele = document.getElementById("selTime");
+                    ele.options.length=0;
+                    ele.options[0] = new Option("最新计算结果", "");
+		            ele.selectedIndex = 0;
+		            if(callback)
+                    {
+　　　                  callback();
+　　　              }
+                    $("#hFd").val($("#selFd").val());
+                }
+            },
+            complete: function (XHR, TS) { XHR = null; },
+            error: function (XMLHttpRequest, textStatus, errorThrown) { 
+                $("#dtBox").html("<div class='c'>对不起，读取计算批次数据错误！</div>");
+            } 
+        });
+    }
+    
+    $.expr[':'].icontains = function(obj, index, meta, stack){
+        return (obj.textContent || obj.innerText || jQuery(obj).text() || '').toLowerCase().indexOf(meta[3].toLowerCase()) >= 0;
+    };
+    
+    function InitCharts(data)
+    {
+        var l=[];
+        for( var i=0;i < data.length;i++){
+            l.push(data[i].Flag);
+        };
+        
+        var s=[];
+        for(var i=0;i < data.length;i++){
+            var item = {
+                name:data[i].Flag,
+                value:parseFloat(data[i].All)
+            }
+            s.push(item);
+        }; 
+        
+        var myChart = echarts.init(document.getElementById('main'));
+        
+        var option = {
+            tooltip : {
+                trigger: 'item',
+                formatter: "{b} : {c}({d}%)"
+            },
+            legend: {
+                show: false,
+                orient : 'vertical',
+                x : 'left',
+                data: l
+            },
+            calculable : true,
+            series : [{
+                name:'数量',
+                type:'pie',
+                radius : '60%',
+                center: ['50%', '50%'],
+                data:s
+            }]
+        };
+        
+        //option.legend.data = l;
+        //option.series[0].data = s;
+        
+        myChart.setOption(option);
+    }
+</script>
+</body>
+</html>
