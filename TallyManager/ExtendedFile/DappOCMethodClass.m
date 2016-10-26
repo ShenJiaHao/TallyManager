@@ -80,7 +80,15 @@
  */
 - (void)LoadLocalUrl:(NSString *)url webView:(UIWebView *)web{
     
-    NSString *path = [[NSBundle mainBundle] resourcePath];//pathForResource:@"index" ofType:@"html"
+    NSUserDefaults *user = [NSUserDefaults standardUserDefaults];
+    BOOL judge = [user objectForKey:@"firstOpen"];
+    NSString *path;
+    if (!judge) { //首次打开
+        path = [[NSBundle mainBundle] resourcePath];//
+    } else
+    {
+        path = NSSearchPathForDirectoriesInDomains(NSCachesDirectory, NSUserDomainMask, YES)[0];
+    }
     
     NSString *path1 =[NSString stringWithFormat:@"%@%@%@",path,@"/assets/", url];
     

@@ -1,0 +1,161 @@
+
+<!DOCTYPE html>
+<html>
+<head id="Head1" runat="server">
+    <title>D咨询门店通</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
+    <meta name="format-detection" content="telephone=no">
+    <meta name="format-detection" content="email=no">
+    <link href="js/mask/jquery.loadmask.css" rel="stylesheet" type="text/css" />
+    <style>
+        body {background:url(images/index.png) no-repeat center top #ecf3fb;}
+        .header {background:none;color:#fff;text-align:center;padding-top:10px;font:16px '微软雅黑' sans-serif;}
+        .user {text-align:center;font-size:14px;color:#fff;margin-top:40px;}
+        .yx {margin:10px auto}
+        .pt {border-radius:50%;border:solid 5px #3972e1;}
+        .user tx {font:24px '微软雅黑' sans-serif;color:#fff;text-align:center;}
+        .user p {font:14px '微软雅黑' sans-serif;}
+        #menu {padding:0px;margin:0px;margin-top:60px;text-align:center;}
+        #menu m {width:80px;height:100px;display:block;float:left;text-align:center;}
+        #menu im {width:80px;height:70px;display:block;text-align:center;margin:0 auto;}
+        #menu imt {text-align:center;color:#666;font:14px '微软雅黑' sans-serif;}
+        .im_all {background:url(images/ic_lh.png) no-repeat center center;}
+        .im_lh {background:url(images/ic_lh.png) no-repeat center center;}
+        .im_mm {background:url(images/ic_mm.png) no-repeat center center;}
+        .im_report {background:url(images/ic_report.png) no-repeat center center;}
+        .im_set {background:url(images/ic_set.png) no-repeat center center;}
+        .logout {background:url(images/backLink.png) no-repeat center center;width:32px;height:32px;display:block;float:right;margin:-26px 0 0 5px;}
+    </style>
+</head>
+<body>
+    <form id="form1" runat="server">
+        <div id="content" class="page">
+            <div class="header">
+                D咨询门店通-首页
+            </div>
+            <a onclick="return confirm('您确定注销当前登录用户？')" href="Login.html?action=logout" class="logout" rel="external" ></a>
+            <div class="user">
+                <div class="yx">
+                <img src='images/nopic.gif' class='pt' />
+                </div>
+                <tx id="txUser">赵珺<p>理货员</p></tx>
+            </div>
+            <div id="menu">
+            </div>
+        </div>
+    </form>
+    <SCRIPT src="js/dapp.js" type="text/javascript"></SCRIPT>
+    <script src="js/Bridge.js" type="text/javascript"></script>
+
+<script type="text/javascript" src="js/loadjs.js"></script>
+<script>
+    LoadJs("js/jquery.min.js", "");
+    LoadJs("js/common.js", "");
+    LoadJs("js/fastclick.js", "");
+</script>
+<SCRIPT src="js/mask/jquery.loadmask.js" type="text/javascript"></SCRIPT>
+<script language="javascript">
+    //<%=Mobile.MobileHelper.InitMenu() %>
+    
+    function Collapse(idx, src)
+    {
+        if(document.getElementById("c" + idx).style.display=="block" || document.getElementById("c" + idx).style.display=="")
+        {
+            $("#c" + idx).slideUp(100);
+            src.className = "p_down";
+        }
+        else
+        {
+            $("#c" + idx).slideDown(100);
+            src.className = "p_up";
+        }
+    }
+    
+    function LoadMenu(flag)
+    {
+        var rn = __roleName;
+        if(rn=="")
+        {
+            rn = "未知角色";
+        }
+        $("#txUser").html(__userName + "<p>" + rn + "</p>");
+        
+        if(flag=="1")
+        {
+            //在线菜单
+            $("body").mask("正在载入，请稍候...");
+            $.ajax ({
+                type:"post",
+                url:__url + "/Mobile/Api/SysService.ashx",
+                dataType:"html",
+                data:"action=menus&userId=" + __userId + "&manageId=" + __manageId,
+                timeout:10000,
+                success:function(data){
+
+                    if(data!="")
+                    {
+                        var str = "";
+                        var d = eval(data);
+                        $.each(d, function(i,item){
+
+                            if(item.Url.indexOf("javascript:")>=0)
+                            {
+                                str += "<m onclick='"+item.Url + "'>";
+//                                alert('1 ====== '+ str);
+                            }
+                            else if(item.Url.indexOf("assets:")>=0)
+                            {
+                                str += "<m onclick='javascript:LoadUrl(\""+item.Url.replaceAll("assets:", "")+"\",\""+item.Url.replaceAll("assets:", "")+"\")'>";
+//                                alert('2 ====== '+ str);
+                            }
+                            else
+                            {
+                                str += "<m onclick='javascript:window.location.href=\"" + __url + "/Mobile/" + item.Url + "?userId=" + __userId + "&manageId=" + __manageId +"\";'>";
+//                                alert('3 ====== '+ str);
+                            }
+                            var iu = "im_all";
+                            if(item.IconUrl!="")
+                            {
+                                iu = item.IconUrl;
+                            }
+                            str += "<im class='" + iu + "' /><imt>" + item.Menu + "</imt></m>";
+		                });
+		                
+                        $("#menu").html(str);
+                    }
+                    
+                    $("m").css("width", $(window).width()/3-10);
+                    $("body").unmask();
+                },
+                complete: function (XHR, TS) { XHR = null; },
+                error: function (XMLHttpRequest, textStatus, errorThrown) {
+                    LoadMenu("0");
+                    $("body").unmask();
+                } 
+            });
+        }
+        else
+        {
+            //离线菜单
+            $("#menu").html("<m onclick='javascript:LoadUrl(\"Tally/Index.html\",\"Tally/Index.html\")'><im class='im_lh' /><imt>离线理货</imt></m>");
+            $("m").css("width", $(window).width()/3-10);
+        }
+    }
+    
+    $().ready(function(){
+        if(window.dapp!=undefined)
+        {
+            //监测网络状态
+//            alert('终于来这里了');
+            CheckNet(function(){LoadMenu("1");},function(){LoadMenu("0");})
+        }
+        else
+        {
+            //直接访问服务器
+            LoadMenu("1");
+        }
+    });
+</script>
+</body>
+</html>

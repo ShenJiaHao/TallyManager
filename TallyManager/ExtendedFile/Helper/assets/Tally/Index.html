@@ -1,0 +1,1183 @@
+﻿
+<!DOCTYPE html>
+<html>
+<head>
+    <title>D咨询门店通</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
+    <meta name="format-detection" content="telephone=no">
+    <meta name="format-detection" content="email=no">
+    <link href="../js/style.css" rel="stylesheet" type="text/css" />
+    <link href="../js/mask/jquery.loadmask.css" rel="stylesheet" type="text/css" />
+    <link href="../js/mobiscroll/mobiscroll.custom-2.6.2.min.css" rel="stylesheet" type="text/css" />
+    <style>
+        #liKc select {width:72px !important;}
+        .box {overflow-y:auto;}
+        html,body {overflow:hidden;}
+    </style>
+</head>
+<body>
+    <form id="form1">
+        <!-- 弹出过滤框 -->
+        <div id="menuMask" style="display:none;"></div>
+        <div id="mainmenu" style="display:none;">
+            <ul>
+                <li>
+                    <lab>理货状态：</lab><txt>
+                    <!--<select id="selState">
+                        <option value="">全部</option>
+                        <option value="0" selected=selected>未理货</option>
+                        <option value="1">已理货</option>
+                    </select>-->
+                    </txt>
+                </li>
+                <li>
+                    <lab>
+                        <button type="button" class="button black" name="submit" id="btnQuery" value="query" onclick="Filter();CloseMenu();">确定</button>
+                        <button type="button" class="button black" name="submit" id="Button1" value="query" onclick="CloseMenu()">关闭</button>
+                    </lab>
+                </li>
+            </ul>
+        </div>
+        <!-- 列表界面 -->
+        <div id="index" class="pg">
+            <div class="header">
+                <toolbar><a href="javascript:LoadUrl('../Index.html','Index.html')" class="bakLink" rel="external" ></a></toolbar>
+                <tit>D咨询门店通-理货</tit>
+                <toolbar><a href="javascript:DownloadData(true, true)" id="btnPost" class="saveLink" rel="external" ></a></toolbar>
+                <ul class="search">
+                    <li>
+                        <select id="selFlag" style="width:24%;border:none;margin:0px !important;" onchange="Filter()">
+                            <option value="" selected=selected>全部类型</option>
+                            <option value="销售异常">销售异常</option>
+                            <option value="大库存">大库存</option>
+                            <option value="负库存">负库存</option>
+                            <option value="不动销">不动销</option>
+                            <option value="临期">临期</option>
+                        </select>
+                        <select id="selState" style="width:24%;border:none;margin:0px !important;" onchange="Filter()">
+                            <option value="">全部</option>
+                            <option value="0" selected=selected>未理货</option>
+                            <option value="1">已理货</option>
+                        </select>
+                        <select id="selFl" style="width:24%;border:none;margin:0px !important;" onchange="Filter()">
+                            <option value="" selected=selected>全部分类</option>
+                        </select>
+                        <input type="text" placeholder="搜索" id="txtKey" value="" style="width:24%;border:none;margin:0px !important;" autofocus>
+                        <input type="button" id="btnMenu" value="…" onclick="TgMenu()" class="mbtn" style="display:none;" />
+                    </li>
+                </ul>
+            </div>
+            <div class="splist" id="listDiv">
+                <ul id="spList"></ul>
+            </div>
+            <div class="footer">
+                <tx2>总商品数：<span id="spAll"></span>&nbsp;已理货：<span id="spChecked"></span>&nbsp;未理货：<span id="spNotChecked"></span></tx2>
+            </div>
+        </div>
+        
+        <!-- 详情界面 -->
+        <div id="edit" class="pg" style="display:none;position:absolute;top:0px;right:-500px;width:100%;height:100%;background-color:#fff;overflow:hidden;">
+            <div class="header" style="position:absolute;z-index:2100;top:0px;left:0px;overflow:hidden;">
+                <toolbar><a href="javascript:TgPage();" rel="external" class="bakLink" ></a></toolbar>
+                <tit>D咨询门店通-理货</tit>
+                <toolbar><a href="javascript:DownloadData(true, true)" id="btnPost1" class="saveLink" rel="external" style="visibility:hidden;" ></a></toolbar>
+            </div>
+            <div class="box" id="p1" style="position:absolute;top:56px;margin-top:0px;left:-1000px;display:none;">
+            </div>
+            <div class="box" id="p2" style="position:absolute;left:0px;top:56px;margin-top:0px;">
+            </div>
+            <div class="box" id="p3" style="position:absolute;top:56px;margin-top:0px;left:1000px;display:none;">
+            </div>
+            <div id="footer" class="footer" style="z-index:2000">
+                <button type="button" class="black" style="float:left;margin-left:10px;" name="submit" id="btnPre" value="save" onclick="Pre()">上一个</button>
+                <button type="button" class="black" name="submit" value="save" onclick="Post()" style="width:120px;">保存</button>
+                <button type="button" class="black" style="float:right;margin-right:10px;" name="submit" id="btnNext" value="save" onclick="Next()">下一个</button>
+            </div>
+        </div>
+    </form>
+
+<SCRIPT src="../js/dapp.js" type="text/javascript"></SCRIPT>
+<script src="../js/Bridge.js" type="text/javascript"></script>
+<script type="text/javascript" src="../js/loadjs.js"></script>
+<script>
+    LoadJs("js/jquery.min.js", "../");
+    LoadJs("js/common.js", "../");
+    LoadJs("js/fastclick.js", "../");
+    LoadJs("js/mask/jquery.loadmask.js", "../");
+    LoadJs("js/jquery.touchSwipe.min.js", "../");
+    LoadJs("js/mobiscroll/mobiscroll.custom-2.6.2.min.js", "../");
+</script>
+
+<!-- 全局初始化 --> 
+<script language="javascript">
+
+    //变量定义
+    var _menuwidth = 200;
+    var ActiveSlider = null;
+    var NextSlider = null;
+    var PreSlider = null;
+    var Tally;
+    var TallyData;
+    var WinWidth;
+    var SwipeChangePercent = 0.2;
+    var SwipeChangeSpeed = 100;
+    var SwipeClickSpeed = 150;
+    var SwipeCancelSpeed = 50;
+    var BeforeAcceptance = "0";
+    
+    var stopScroll = true; 
+    var PageSize = 50;
+    var CurRecordIndex = 0;
+    var MaxScrollTop = 0;
+    
+    $().ready(function(){
+        
+        $("body").mask("正在载入，请稍候...");
+        
+        CheckNet(function(){
+            InitSort();
+        }, function(){
+            InitSort_Local();
+        });
+        
+        DownloadData(true, false);
+
+        var w = $(window).width();
+        $("#selFlag").width(w/4.0-10);
+        $("#selState").width(w/4.0-10);
+        $("#selFl").width(w/4.0-10);
+        $("#txtKey").width(w/4.0-2);
+        
+        _menuwidth = parseInt($(window).width()*0.7,10)
+        $("#mainmenu").width(_menuwidth-1);
+        $("#mainmenu").css("right", 0-_menuwidth);
+        
+        $("#edit").width($(window).width());
+        $("#edit").height($(window).height());
+        $("#edit").css("right", 0-$(window).width());
+        
+        $(".splist").height($(window).height()-114);
+        $(".box").height($(window).height()-105);
+        
+        $("tit").width(w - 80);
+        //$("tit").html(__appName + "(" + __shopName + ")");
+        $("tit").html(__shopName);
+        
+        //可以滚动的最大高度
+        MaxScrollTop = parseFloat($("#spList").height()) - parseFloat($(window).height()) + 100;
+        
+        $("#listDiv").scroll(function(){ 
+            if(parseFloat($("#listDiv").scrollTop()) >= MaxScrollTop){ 
+                if(stopScroll){ 
+                    stopScroll = false; 
+                    LoadList();
+                    stopScroll = true;
+                } 
+            } 
+        });
+        
+    })
+    
+    InitWrapForInputScroll("content", 0, 70, ""); 
+    
+    $("#txtKey").bind("keydown",function(e){
+        if(!e) e = window.event;
+        if((e.keyCode || e.which) == 13){
+            Filter();
+        }
+    });
+    function InitSort_Local()
+    {
+        var data = localStorage.getItem("sortData");
+        if(data!=undefined && data!=null && data!="")
+        {
+            var d = eval(data);
+            var ele = document.getElementById("selFl");
+            ele.options.length=0;
+            ele.options[0] = new Option("全部分类", "");
+            $.each(d, function(i,item){
+                ele.options[i+1] = new Option(item.sflmc, item.sflbh);
+            });
+        }
+    }
+    function InitSort()
+    {
+        $.ajax ({
+            type:"post",
+            url:__url + "/Mobile/Api/SysService.ashx",
+            dataType:"html",
+            data:"action=sort&userId=" + __userId + "&manageId=" + __manageId + "&len=2",
+            timeout:10000,
+            success:function(data){
+                if(data!="")
+                {
+                    localStorage.removeItem("sortData");
+                    localStorage.setItem("sortData", data);
+                    var d = eval(data);
+                    var ele = document.getElementById("selFl");
+                    ele.options.length=0;
+                    ele.options[0] = new Option("全部分类", "");
+                    $.each(d, function(i,item){
+                        ele.options[i+1] = new Option(item.sflmc, item.sflbh);
+		            });
+                }
+            },
+            complete: function (XHR, TS) { XHR = null; },
+            error: function (XMLHttpRequest, textStatus, errorThrown) { 
+            } 
+        });
+    }
+    
+    $.expr[':'].icontains = function(obj, index, meta, stack){
+        return (obj.textContent || obj.innerText || jQuery(obj).text() || '').toLowerCase().indexOf(meta[3].toLowerCase()) >= 0;
+    };
+    
+</script>
+
+<!-- 初始化列表数据 --> 
+<script language="javascript">
+    
+    //数据下载
+    function DownloadData(postData, showMask)
+    {
+        if(showMask)
+        {
+            $("body").mask("正在提交，请稍候...");
+        }
+        
+        CurRecordIndex = 0;
+        
+        CheckNet(function(){
+            var dataStr = "";
+            if(postData)
+            {
+                dataStr = localStorage.getItem("tallyData");
+                if(dataStr==undefined || dataStr==null)
+                {
+                    dataStr = "";
+                }
+            }
+            $.ajax ({
+                type:"post",
+                url:__url + "/Mobile/Api/DataService.ashx",
+                dataType:"html",
+                data:"action=loadTallyData&showAll=1&userId=" + __userId + "&manageId=" + __manageId + "&shopId=" + __shopId + "&tallyData=" + escape(dataStr),
+                timeout:10000,
+                success:function(data){
+                    if(data!="")
+                    {
+                        localStorage.removeItem("tallyData");
+                        localStorage.setItem("tallyData", data);
+                    }
+                    LoadList();
+                },
+                complete: function (XHR, TS) { XHR = null; },
+                error: function (XMLHttpRequest, textStatus, errorThrown) { 
+                    LoadList();
+                } 
+            });
+        }, function(){
+            LoadList();
+            return;
+        });
+    }
+    
+    //生成列表界面
+    function LoadList()
+    {
+        var dataStr = localStorage.getItem("tallyData");
+        if(dataStr==undefined || dataStr==null || dataStr=="")
+        {
+            $("body").unmask();
+            $("#spList").html("对不起，当前系统无本地数据，请您打开网络并进行数据下载");
+            return;
+        }
+        var str = "";
+	    var data = eval(dataStr);
+        var beginIdx = CurRecordIndex;
+        var endIdx = data.length;
+        var queryCount = PageSize;
+        if(endIdx<(CurRecordIndex+PageSize))
+        {
+            queryCount = endIdx - beginIdx;
+        }
+        
+        var n = 0;
+        var tmpCurRecordIndex = CurRecordIndex;
+        var selFlag = $("#selFlag").val();
+        var selFl = $("#selFl").val();
+        var txtKey = $("#txtKey").val();
+        var selState = $("#selState").val();
+        for(var i=beginIdx;i<endIdx;i++)
+        {
+            var item = data[i];
+	        tmpCurRecordIndex = i;
+            
+            var f1 = false;
+            var f2 = false;
+            var f3 = false;
+            var f4 = false;
+            if(selFlag=="" || item.Flag.indexOf(selFlag)>=0)
+            {
+                f1 = true;
+            }
+            if(selFl=="" || item.sFlbh.indexOf(selFl)==0)
+            {
+                f2 = true;
+            }
+            if(txtKey=="" || item.sSpbh.indexOf(txtKey)>=0 || item.sSpmc.indexOf(txtKey)>=0)
+            {
+                f3 = true;
+            }
+            if(selState=="" || (selState=="0" && item.CheckTime=="") || (selState=="1" && item.CheckTime!=""))
+            {
+                f4 = true;
+            }
+            if(f1 && f2 && f3 && f4)
+            {
+                str += "<li class='";
+	            if(item.DirtyData=="1")
+	            {
+	                str += "dirty ";
+	            }
+	            if(item.CheckTime!="")
+	            {
+	                str += "checked ";
+	            }
+	            str += "'><a href='javascript:InitData(\"" + item.sSpbh + "\",\"" + item.Flag + "\")'><tp><t>";
+	            str += item.sSpbh + "</t><flag>";
+    	        
+	            //不显示异常类型，改成显示分类信息
+	            //str += item.Flag;
+	            if(item.sFlbh=="")
+                {
+                    str += "无分类信息";
+                }
+                else
+                {
+                    //str += item.sFlbh + "：" + item.sFlmc;
+                    str += item.sFlmc;
+                }
+    	        
+	            str += "</flag></tp><bt><im><img src='../images/nopic.gif' class='pt' /></im><nm>" + item.sSpmc + "</nm><fl>" + item.sFlmc + "</fl><flbh>" + item.sFlbh + "</flbh>";
+	            str += "<ct>" + item.CheckTime + "</ct></bt></a></li>";
+	            
+	            n++;
+	            if(n>queryCount)
+	            {
+	                break;
+	            }
+	        }
+        }
+        
+        if(CurRecordIndex==0)
+        {
+            $("#spList").html(str);
+        }
+        else
+        {
+            $("#spList").html($("#spList").html() + str);
+        }
+        CurRecordIndex = tmpCurRecordIndex;
+        
+        var c_all = 0;
+        var c_chk = 0;
+        $.each(data, function(i,item){
+            var f1 = false;
+            var f2 = false;
+            var f3 = false;
+            var f4 = false;
+            if(selFlag=="" || item.Flag.indexOf(selFlag)>=0)
+            {
+                f1 = true;
+            }
+            if(selFl=="" || item.sFlbh.indexOf(selFl)==0)
+            {
+                f2 = true;
+            }
+            if(txtKey=="" || item.sSpbh.indexOf(txtKey)>=0 || item.sSpmc.indexOf(txtKey)>=0)
+            {
+                f3 = true;
+            }
+            if(selState=="" || (selState=="0" && item.CheckTime=="") || (selState=="1" && item.CheckTime!=""))
+            {
+                f4 = true;
+            }
+            if(f1 && f2 && f3)
+            {
+                c_all++;
+                if(item.CheckTime!="")
+                {
+                    c_chk++;
+                }   
+            }
+		});
+        $("#spAll").html(c_all);
+        $("#spChecked").html(c_chk);
+        $("#spNotChecked").html(c_all-c_chk);
+        
+        //可以滚动的最大高度
+        MaxScrollTop = parseFloat($("#spList").height()) - parseFloat($(window).height()) + 100;
+        
+        $("body").unmask();
+    }
+</script>
+
+<!-- 过滤事件 --> 
+<script language="javascript">
+    function Filter()
+    {
+        CurRecordIndex = 0;
+        LoadList();
+    }
+    function RemoveList()
+    {
+        $("#spList li").each(function(){
+            
+            if($(this).find("t").html()==Tally.sSpbh)
+            {
+                $(this).find("ct").html(Tally.CheckTime);
+                if($("#selState").val()=="0")
+                {
+                    $(this).hide();
+                }
+                $("#spChecked").html(parseInt($("#spChecked").html(),10)+1);
+                $("#spNotChecked").html(parseInt($("#spAll").html(),10)-parseInt($("#spChecked").html(),10));
+                return false;
+            }
+        });
+    }
+    
+    function TgMenu()
+    {
+        if($("#mainmenu").css("right")=="0px")
+        {
+            $("#menuMask").css("display", "none");
+            $("#mainmenu").animate({right: 0-_menuwidth}, 200, function(){
+                $("#mainmenu").css("display", "none");
+            });
+            if(window.dapp!=undefined)
+            {
+                if(window.dapp.SetPopupMenuOver!=undefined)
+                {
+                    window.dapp.SetPopupMenuOver();
+                }
+            }
+        }
+        else
+        {
+            $("#mainmenu").css("display", "");
+            $("#mainmenu").animate({right: 0}, 200,function(){
+                $("#menuMask").css("display", "");
+                $("#menuMask").css("width", $(window).width());
+                $("#menuMask").css("height", $(window).height());
+            });
+            if(window.dapp!=undefined)
+            {
+                if(window.dapp.SetPopupMenu!=undefined)
+                {
+                    window.dapp.SetPopupMenu();
+                }
+            }
+        }
+    }
+    $("#menuMask").bind("click", function (e) { 	
+		CloseMenu();
+	});
+	function CloseMenu()
+	{
+	    if($("#mainmenu").css("right")=="0px")
+        {
+            $("#menuMask").css("display", "none");
+            $("#mainmenu").animate({right: 0-_menuwidth}, 200, function(){
+                $("#mainmenu").css("display", "none");
+            });
+            if(window.dapp!=undefined)
+            {
+                if(window.dapp.SetPopupMenuOver!=undefined)
+                {
+                    window.dapp.SetPopupMenuOver();
+                }
+            }
+        }
+	}
+	
+	function TgPage()
+    {
+        if($("#edit").css("right")=="0px")
+        {
+            $("#footer").css("display", "none");
+            PreSlider.css("display", "none");
+            NextSlider.css("display", "none");
+            $("#edit").css("border-left", "solid 1px #bbb");
+            $("#edit").animate({right: 0-$(window).width()}, 200, function(){
+                $("#edit").css("display", "none");
+                $("#edit").css("border-left", "none");
+            });
+        }
+        else
+        {
+            $("#edit").css("display", "");
+            $("#edit").width($(window).width());
+            $("#edit").height($(window).height());
+            $("#edit").css("border-left", "solid 1px #bbb");
+            $("#edit").animate({right: 0}, 200, function(){
+                $("#footer").css("display", "");
+                $("#edit").css("border-left", "none");
+                PreSlider.css("left", 0-WinWidth);
+                NextSlider.css("left", WinWidth);
+	            PreSlider.css("display", "");
+	            NextSlider.css("display", "");
+                PreSlider.css("z-index", "1001");
+                ActiveSlider.css("z-index", "999");
+                NextSlider.css("z-index", "1001");
+            });
+        }
+    }
+</script>
+
+<!-- Edit界面初始化 -->
+<script language="javascript">
+
+    var opt = {
+        theme: "android-ics light", 
+        display: 'modal',         //显示方式  
+        lang: "zh",  
+        setText: '确定',          //确认按钮名称
+        cancelText: "取消",  
+        dateFormat: 'yyyy-mm-dd', //返回结果格式化为年月格式  
+        dateOrder: 'yyyymmdd'     //面板中日期排列格式
+//        onBeforeShow: function (inst) {
+//		    //console.info( inst.settings.wheels);
+//        }, 
+//        headerText: function (valueText) { //自定义弹出框头部格式  
+//            //console.info(valueText);
+//            array = valueText.split('-');  
+//            return array[0] + "年" + array[1] + "月" + array[2] + "日";  
+//        }  
+    };
+    
+    function InitData(sSpbh,Flag)
+    {
+        var dataStr = localStorage.getItem("tallyData");
+        if(dataStr==undefined || dataStr==null || dataStr=="")
+        {
+            ShowAlert("对不起，当前系统无本地数据，请您打开网络并进行数据下载！");
+            $("#spEdit").html("很抱歉，无数据");
+            return;
+        }
+        TallyData = eval(dataStr);
+	    $.each(TallyData, function(i,item){
+	        if(sSpbh==item.sSpbh && Flag==item.Flag)
+	        {
+	            Tally = item;
+	            ActiveSlider = $("#p2");
+	            PreSlider = $("#p1");
+	            NextSlider = $("#p3");
+	            
+                ActiveSlider.css("left", 0);
+	            PreSlider.css("display", "none");
+	            ActiveSlider.css("display", "");
+	            NextSlider.css("display", "none");
+	            
+                InitForm(Tally, ActiveSlider);
+	            InitEditPage();
+	            ResetSlide();
+	            if(window.dapp!=undefined)
+                {
+                    if(window.dapp.SetSwipePage!=undefined)
+                    {
+                        window.dapp.SetSwipePage();
+                    }
+                }
+	            TgPage();
+	            
+	            return false;
+	        }
+		});
+    }
+    function InitForm(obj, slider)
+    {
+        var dc = "";
+        if(obj.DirtyData=="1")
+        {
+            dc = " class='dirty'";
+        }
+        
+        var str = "";
+        str += "<top><tx id='t'>" + obj.sSpmc + "</tx></top>";
+        str += "<div id='spEdit'" + dc + "><ul>";
+        str += "<li><lab>商品条码</lab><txt id='spbh'>" + obj.sSpbh + "</txt></li>";
+        str += "<li><lab>商品分类</lab><txt>"
+        if(obj.sFlbh=="")
+        {
+            str += "无分类信息";
+        }
+        else
+        {
+            str += obj.sFlbh + "：" + obj.sFlmc;
+        }
+        str +="</txt></li>";
+        str += "<li><labl>零售价</labl><txtl id='lsj'>" + obj.nLsj + "</txtl><labl>期末库存</labl><txtr id='qmkc'>" + obj.nQmkc + "</txtr></li>";
+        //str += "<li><labl>日均销量</labl><txtl id='rjxl'>" + obj.nRjxl + "</txtl><labl>异常类型</labl><txtr>" + obj.Flag + "</txtr></li>";
+        if(obj.Flag=="销售异常")
+        {
+            str += "<li><labl>日均销量</labl><txtl id='rjxl'>" + obj.nRjxl + "</txtl><labl>未销天数</labl><txtr id='wxts'>" + obj.nQmwxts + "</txtr></li>";
+        }
+        else
+        {
+            str += "<li><lab>日均销量</lab><txt id='rjxl'>" + obj.nRjxl + "</txt></li>";
+        }
+        
+        var sliderId = slider.attr("id");
+        
+        str += "<li><lab>处理结果</lab><txt>";
+        str += "<ck><input type='checkbox' id='flag1_" + sliderId + "' value='查无问题' onclick='SaveTallyLocal()' /><label for='flag1_" + sliderId + "'>查无问题</label></ck>";
+        str += "<ck><input type='checkbox' id='flag2_" + sliderId + "' value='库存问题' onclick='ToggleKcShow();SaveTallyLocal()' /><label for='flag2_" + sliderId + "'>库存问题</label></ck><br/>";
+        str += "<div class='cls'></div>";
+        str += "<ck><input type='checkbox' id='flag3_" + sliderId + "' value='未上架' onclick='SaveTallyLocal()' /><label for='flag3_" + sliderId + "'>未上架</label></ck>";
+        str += "<ck><input type='checkbox' id='flag4_" + sliderId + "' value='外观原因' onclick='SaveTallyLocal()' /><label for='flag4_" + sliderId + "'>外观原因</label></ck><br/>";
+        str += "<div class='cls'></div>";
+        str += "<ck><input type='checkbox' id='flag5_" + sliderId + "' value='保质期' onclick='TogglePDShow();SaveTallyLocal()' /><label for='flag5_" + sliderId + "'>保质期</label></ck>";
+        str += "<ck><input type='checkbox' id='flag6_" + sliderId + "' value='价格标签' onclick='SaveTallyLocal()' /><label for='flag6_" + sliderId + "'>价格标签</label></ck><br/>";
+        str += "<div class='cls'></div>";
+        str += "<ck><input type='checkbox' id='flag7_" + sliderId + "' value='其他' onclick='ToggleMemoShow();SaveTallyLocal()' /><label for='flag7_" + sliderId + "'>其他</label></ck>";
+        str += "<div class='cls'></div>";
+        
+        str += "</txt></li>";
+        str += "<li id='liFlag' style='display:none;'><lab>其他原因：</lab><txt><input type='text' id='txtCheckMemo' onblur='SaveTallyLocal()'></txt></li>";
+        
+        str += "<li id='liKc' style='display:none;'><lab>库存数量</lab><txt><select id='selJd' onchange='SaveTallyLocal();UpdateDefaultJd(this)'><option value='0'>到货前</option><option value='1'>到货后</option></select>"
+        str += "<input type='button' class='lb' style='margin-left:4px;' onclick='SNum(ActiveSlider.find(\"#txtCheckSl\"), SaveTallyLocal)' value='-' />"
+        str += "<input type='number' class='cb' id='txtCheckSl' value='" + obj.CheckSl + "' />"
+        str += "<input type='button' class='rb' onclick='ANum(ActiveSlider.find(\"#txtCheckSl\"), SaveTallyLocal)' value='+' /></txt></li>";
+        
+        str += "<li id='liProductionDate' style='display:none;'><lab>生产日期：</lab><txt><input type='text' id='txtProductionDate' onblur='SaveTallyLocal()'></txt></li>";
+        
+        str += "<li><lab>异常类型</lab><txt>" + obj.Flag + "</txt></li>";
+        str += "<li><lab>处理时间</lab><txt>" + obj.CheckTime + "</txt></li>";
+		str += "</ul></div>";
+        slider.html(str);
+        
+        slider.find("#txtCheckMemo").val(obj.CheckMemo);
+        slider.find("#txtProductionDate").val(obj.ProductionDate);
+        var cf = obj.CheckFlag.split(",");
+        for(var i=0;i<cf.length;i++)
+        {
+            if(cf[i]=="查无问题")
+            {
+                slider.find("#flag1_" + sliderId + "").prop("checked", true);
+            }
+            if(cf[i]=="库存问题")
+            {
+                slider.find("#flag2_" + sliderId + "").prop("checked", true);
+            }
+            if(cf[i]=="未上架")
+            {
+                slider.find("#flag3_" + sliderId + "").prop("checked", true);
+            }
+            if(cf[i]=="外观原因")
+            {
+                slider.find("#flag4_" + sliderId + "").prop("checked", true);
+            }
+            if(cf[i]=="保质期")
+            {
+                slider.find("#flag5_" + sliderId + "").prop("checked", true);
+            }
+            if(cf[i]=="价格标签")
+            {
+                slider.find("#flag6_" + sliderId + "").prop("checked", true);
+            }
+            if(cf[i]=="其他")
+            {
+                slider.find("#flag7_" + sliderId + "").prop("checked", true);
+                slider.find("#liFlag").css("display", "");
+            }
+        }
+        
+        if(obj.DirtyData=="1" || obj.CheckTime!="")
+        {
+            slider.find("#selJd").val(obj.BeforeAcceptance);
+        }
+        else
+        {
+            slider.find("#selJd").val(BeforeAcceptance);
+        }
+        
+        //初始化日期组件
+        slider.find("#txtProductionDate").mobiscroll().date(opt);
+        
+        ToggleKcShow(slider);
+        ToggleMemoShow(slider);
+        TogglePDShow(slider);
+    }
+    
+    function ToggleMemoShow(sd)
+    {
+        if(sd==undefined)
+        {
+            sd = ActiveSlider;
+        }
+        var sliderId = sd.attr("id");
+        if(sd.find("#flag7_" + sliderId).prop("checked"))
+        {
+            sd.find("#liFlag").css("display", "");
+        }
+        else
+        {
+            sd.find("#liFlag").css("display", "none");
+        }
+    }
+    function ToggleKcShow(sd)
+    {
+        if(sd==undefined)
+        {
+            sd = ActiveSlider;
+        }
+        var sliderId = sd.attr("id");
+        if(sd.find("#flag2_" + sliderId).prop("checked"))
+        {
+            sd.find("#liKc").css("display", "");
+        }
+        else
+        {
+            sd.find("#liKc").css("display", "none");
+        }
+    }
+    function TogglePDShow(sd)
+    {
+        if(sd==undefined)
+        {
+            sd = ActiveSlider;
+        }
+        var sliderId = sd.attr("id");
+        if(sd.find("#flag5_" + sliderId).prop("checked"))
+        {
+            sd.find("#liProductionDate").css("display", "");
+        }
+        else
+        {
+            sd.find("#liProductionDate").css("display", "none");
+        }
+    }
+    function UpdateDefaultJd(src)
+    {
+        BeforeAcceptance = $(src).val();
+    }
+    
+</script>
+
+<!-- Edit界面的翻页处理 -->
+<script language="javascript">
+    function ResetSlide()
+    {                   
+        $("#btnPre").css("visibility", "visible");
+        $("#btnNext").css("visibility", "visible");
+        //找上一个
+        var oo = FindPre();
+        if(oo!=null)
+        {
+            InitForm(oo, PreSlider);
+        }
+        else
+        {
+            $("#btnPre").css("visibility", "hidden");
+        }
+        oo = FindNext();
+        if(oo!=null)
+        {
+            InitForm(oo, NextSlider);
+        }
+        else
+        {
+            $("#btnNext").css("visibility", "hidden");
+        }
+    }
+    
+    var SliderHeight = 0;
+    var WinHeight = 0;
+    var CurTop = 0;
+    var CurDirct = "";
+    //初始化滑动页面
+    function InitEditPage()
+    {
+        WinWidth = $(window).width();
+        $("#p1").width(WinWidth);
+        $("#p2").width(WinWidth);
+        $("#p3").width(WinWidth);
+        $("#edit").swipe( {
+            allowPageScroll : "auto",
+            swipe:function(event, direction, distance, duration, fingerCount, fingerData) {
+                if(direction=="left" && $("#btnNext").css("visibility")=="hidden")
+                {
+                    ShowAlert("已经是最后一条记录啦");
+                }
+                if(direction=="right" && $("#btnPre").css("visibility")=="hidden")
+                {
+                    ShowAlert("已经是第一条记录啦");
+                }
+            },
+            swipeStatus:function(event, phase, direction, distance, duration, fingerCount, fingerData, currentDirection) {
+                //$(this).find("tit").text("你用"+fingerCount+"个手指以"+duration+"秒的速度向" + direction + "滑动了" +distance+ "像素 ");
+                
+                if(direction=="left" && $("#btnNext").css("visibility")=="hidden")
+                {
+                    return;
+                }
+                if(direction=="right" && $("#btnPre").css("visibility")=="hidden")
+                {
+                    return;
+                }
+                
+                if(phase=="start")
+                {
+                    CurDirct = "";
+                    SliderHeight = ActiveSlider.height();
+                    WinHeight = $(window).height()-111;
+                    CurTop = parseInt(ActiveSlider.css("top").replace("px", ""),10);
+                    NextSlider.css("border-left", "solid 1px #ddd");
+                    PreSlider.css("border-right", "solid 1px #ddd");
+                }
+                else if(phase=="move")
+                {
+                    if(direction=="left")
+                    {
+                        if(CurDirct!="v")
+                        {
+                            NextSlider.css("left", WinWidth-distance);
+                            CurDirct = "h";
+                        }
+                    }
+                    else if(direction=="right")
+                    {
+                        if(CurDirct!="v")
+                        {
+                            PreSlider.css("left", distance-WinWidth);
+                            CurDirct = "h";
+                        }
+                    }
+//                    else if(direction=="up")
+//                    {
+//                        if(CurDirct!="h")
+//                        {
+//                            if(parseInt(ActiveSlider.css("top").replace("px", ""),10)>(WinHeight-SliderHeight-5))
+//                            {
+//                                ActiveSlider.css("top", CurTop - distance);
+//                            }
+//                            CurDirct = "v";
+//                        }
+//                    }
+//                    else if(direction=="down")
+//                    {
+//                        if(CurDirct!="h")
+//                        {
+//                            if(parseInt(ActiveSlider.css("top").replace("px", ""),10) < 61)
+//                            {
+//                                ActiveSlider.css("top", CurTop + distance);
+//                            }
+//                            CurDirct = "v";
+//                        }
+//                    }
+                }
+                else if(phase=="end")
+                {
+                    CurDirct = "";
+                    NextSlider.css("border-left", "none");
+                    PreSlider.css("border-right", "none");
+                    if(direction=="left")
+                    {
+                        if(distance>WinWidth*SwipeChangePercent)
+                        {
+                            SwipeNext(SwipeChangeSpeed);
+                        }
+                        else
+                        {
+                            NextSlider.animate({left: WinWidth}, SwipeChangeSpeed);
+                        }
+                    }
+                    else if(direction=="right")
+                    {
+                        if(distance>WinWidth*SwipeChangePercent)
+                        {
+                            SwipePre(SwipeChangeSpeed);
+                        }
+                        else
+                        {
+                            PreSlider.animate({left: 0-WinWidth}, SwipeChangeSpeed);
+                        }
+                    }
+//                    else if(direction=="up")
+//                    {
+//                        if(parseInt(ActiveSlider.css("top").replace("px", ""),10)<(WinHeight-SliderHeight))
+//                        {
+//                            ActiveSlider.animate({top: WinHeight-SliderHeight}, SwipeChangeSpeed);
+//                        }
+//                    }
+//                    else if(direction=="down")
+//                    {
+//                        if(parseInt(ActiveSlider.css("top").replace("px", ""),10) > 61)
+//                        {
+//                            ActiveSlider.animate({top: 56}, SwipeChangeSpeed);
+//                        }
+//                    }
+                }
+                else if(phase=="cancel")
+                {
+                    CurDirct = "";
+                    NextSlider.css("border-left", "none");
+                    PreSlider.css("border-right", "none");
+                    if(direction=="left")
+                    {
+                        NextSlider.animate({left: WinWidth}, SwipeCancelSpeed);
+                    }
+                    else if(direction=="right")
+                    {
+                        PreSlider.animate({left: 0-WinWidth}, SwipeCancelSpeed);
+                    }
+                }
+            },
+            threshold:75
+        });
+    }
+    //滑向下一个
+    function SwipeNext(speed)
+    {
+        var tmp_pre = PreSlider;
+        var tmp_act = ActiveSlider;
+        var tmp_next = NextSlider;
+        
+        tmp_next.animate({left: 0}, speed, function(){
+            tmp_pre.css("left", WinWidth);
+            tmp_act.css("left", 0-WinWidth);
+            tmp_next.css("border-left", "none");
+            tmp_pre.css("border-right", "none");
+            
+            //重新定义滑块
+            PreSlider = tmp_act;
+            ActiveSlider = tmp_next;
+            NextSlider = tmp_pre;
+            Tally = FindBySpbh(ActiveSlider.find("#spbh").html());
+            ResetSlide();
+            
+            PreSlider.css("z-index", "1001");
+            ActiveSlider.css("z-index", "999");
+            ActiveSlider.css("top", 56);
+            NextSlider.css("z-index", "1001");
+        });
+    }
+    //滑向上一个
+    function SwipePre(speed)
+    {
+        var tmp_pre = PreSlider;
+        var tmp_act = ActiveSlider;
+        var tmp_next = NextSlider;
+        
+        tmp_pre.animate({left: 0}, speed, function(){
+            tmp_next.css("left", 0-WinWidth);
+            tmp_act.css("left", WinWidth);
+            tmp_next.css("border-left", "none");
+            tmp_pre.css("border-right", "none");
+            
+            //重新定义滑块
+            PreSlider = tmp_next;
+            ActiveSlider = tmp_pre;
+            NextSlider = tmp_act;
+            Tally = FindBySpbh(ActiveSlider.find("#spbh").html());
+            ResetSlide();
+            
+            PreSlider.css("z-index", "1001");
+            ActiveSlider.css("z-index", "999");
+            ActiveSlider.css("top", 56);
+            NextSlider.css("z-index", "1001");
+        });
+    }
+    
+    function Pre()
+    {
+        NextSlider.css("border-left", "solid 1px #ddd");
+        PreSlider.css("border-right", "solid 1px #ddd");
+        SwipePre(SwipeClickSpeed);
+        return;
+    }
+    function Next()
+    {
+        NextSlider.css("border-left", "solid 1px #ddd");
+        PreSlider.css("border-right", "solid 1px #ddd");
+        SwipeNext(SwipeClickSpeed);
+        return;
+    }
+    
+    function FindPre()
+    {
+        var oo = null;
+        
+        for(var i=0;i<TallyData.length;i++)
+        {
+            if(TallyData[i].sSpbh==Tally.sSpbh)
+            {
+                if(i>0)
+                {
+                    for(var j=i-1;j>=0;j--)
+                    {
+                        if(TallyData[j].V=="1")
+                        {
+                            return TallyData[j];
+                        }
+                    }
+                    return null;
+                }
+                else
+                {
+                    return null;
+                }
+            }
+        }
+		return oo;
+    }
+    function FindNext()
+    {
+        var oo = null;
+        for(var i=0;i<TallyData.length;i++)
+        {
+            if(TallyData[i].sSpbh==Tally.sSpbh)
+            {
+                if(TallyData.length>i+1)
+                {
+                    for(var j=i+1;j<TallyData.length;j++)
+                    {
+                        if(TallyData[j].V=="1")
+                        {
+                            return TallyData[j];
+                        }
+                    }
+                    return null;
+                }
+                else
+                {
+                    return null;
+                }
+            }
+        }
+		return oo;
+    }
+    
+    function FindBySpbh(spbh)
+    {
+        var oo;
+        $.each(TallyData, function(i,item){
+	        if(spbh==item.sSpbh)
+	        {
+	            oo = item;
+	            return;
+	        }
+		});
+		return oo;
+    }
+
+</script>
+
+<!-- 数据提交处理 -->
+<script language="javascript">
+    
+    //从UI中给对象赋值
+    function SaveTallyFromUI()
+    {
+        Tally.CheckSl = ActiveSlider.find("#txtCheckSl").val();
+        var sliderId = ActiveSlider.attr("id");
+        var f = "";
+        for(var i=0;i<8;i++)
+        {
+            if(ActiveSlider.find("#flag" + i + "_" + sliderId).prop("checked"))
+            {
+                f += ActiveSlider.find("#flag" + i + "_" + sliderId).val() + ",";
+            }
+        }
+        if(f!="")
+        {
+            f = f.substring(0, f.length-1);
+        }
+        Tally.CheckFlag = f;
+        Tally.CheckMemo = ActiveSlider.find("#txtCheckMemo").val()
+        Tally.ProductionDate = ActiveSlider.find("#txtProductionDate").val()
+        Tally.DirtyData = "1";
+        var d = new Date();
+        Tally.CheckTime = d.format("yyyy-MM-dd hh:mm:ss");
+        Tally.BeforeAcceptance = ActiveSlider.find("#selJd").val();
+        
+    }
+    
+    //提交
+    function Post()
+    {
+        var msk = setTimeout("$('body').mask('正在保存，请稍候...')", 200);
+        
+        SaveTallyFromUI();
+        
+        CheckNet(function(){
+            $.ajax ({
+                type:"post",
+                url:__url + "/Mobile/Api/DataService.ashx",
+                dataType:"html",
+                data:"action=updateTallyData&userId=" + __userId + "&manageId=" + __manageId + "&shopId=" + __shopId + "&sSpbh=" + Tally.sSpbh 
+                    + "&CheckSl=" + Tally.CheckSl + "&CheckFlag=" + escape(Tally.CheckFlag) + "&CheckMemo=" + escape(Tally.CheckMemo) 
+                    + "&BeforeAcceptance=" + Tally.BeforeAcceptance + "&ProductionDate=" + Tally.ProductionDate + "&T=" + Tally.T,
+                timeout:10000,
+                success:function(data){
+                    if(data=="ok")
+                    {
+                        //如果服务器已经提交成功，则恢复本地脏数据状态
+                        Tally.DirtyData = "";
+                    }
+                    UpdateLocal();
+                    RemoveList();
+                    clearTimeout(msk);
+                    $("body").unmask();
+                    ShowAlert("提交成功！");
+                    Next();
+                },
+                complete: function (XHR, TS) { XHR = null; },
+                error: function (XMLHttpRequest, textStatus, errorThrown) { 
+                    UpdateLocal();
+                    clearTimeout(msk);
+                    $("body").unmask();
+                    ShowAlert("提交失败！已保存为离线数据，请您在连接网络的时候再次提交！");
+                    Next();
+                } 
+            });
+        }, function(){
+            UpdateLocal();
+            clearTimeout(msk);
+            $("body").unmask();
+            ShowAlert("网络连接失败，已保存为离线数据，请您在连接网络的时候再次提交！");
+            Next();
+            return;
+        })
+    }
+    
+    //更新本地数据
+    function UpdateLocal()
+    {
+        $.each(TallyData, function(i,item){
+	        if(Tally.sSpbh==item.sSpbh)
+	        {
+	            TallyData[i] = Tally;
+	        }
+		});
+		localStorage.removeItem("tallyData");
+        localStorage.setItem("tallyData", JSON.stringify(TallyData));
+    }
+    
+    //直接保存本地
+    function SaveTallyLocal()
+    {
+        SaveTallyFromUI();
+        
+        ActiveSlider.find("#spEdit").attr("class", "dirty");
+        
+        UpdateLocal()
+    }
+    
+</script>
+</body>
+</html>

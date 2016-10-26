@@ -1,0 +1,224 @@
+﻿
+<!DOCTYPE html>
+<html>
+<head id="Head1" runat="server">
+    <title>D咨询门店通</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
+    <meta name="format-detection" content="telephone=no">
+    <meta name="format-detection" content="email=no">
+    <link href="../js/style.css" rel="stylesheet" type="text/css" />
+    <style>
+        .dtree {text-align:left !important;}
+        s1 {float:left;}
+        s2 {width:30px;display:block;height:40px;float:right;background:url(../images/arrow.gif) no-repeat center center;cursor:pointer;}
+        .box {margin:0px;overflow-y:auto;position:absolute;left;0px;top:56px;width:100%;background:#fff;}
+    </style>
+</head>
+<body>
+    <form id="form1" runat="server">
+        <input type="hidden" id="hCallback" />
+        <div id="content">
+            <div class="header">
+                <toolbar id="tbBack" style="visibility:hidden;"><a href="javascript:Back();" rel="external" class="bakLink" ></a></toolbar>
+                <tit>D咨询门店通-用户权限</tit>
+                <toolbar><a href="javascript:CloseMe();" rel="external" class="closeLink" ></a></toolbar>
+            </div>
+            <div class="box" id="divForm">
+            </div>
+            <div class="box" id="divForm1" style="display:none;left:500px;">
+            </div>
+            <div class="footer fbS">
+                <button type="button" class="button black" name="submit" value="save" onclick="SetSelect()">确定</button>
+                <button type="button" class="button black" name="submit" id="btnBack" style="display:none;" value="save" onclick="Back()">返回上一级</button>
+            </div>
+        </div>
+    </form>
+
+<SCRIPT src="../js/dapp.js" type="text/javascript"></SCRIPT>
+<script src="../js/Bridge.js" type="text/javascript"></script>
+<script type="text/javascript" src="../js/Bridge.js"></script>
+<script type="text/javascript" src="../js/loadjs.js"></script>
+
+<script>
+    LoadJs("js/jquery.min.js", "../");
+    LoadJs("js/common.js", "../");
+    LoadJs("js/fastclick.js", "../");
+</script>
+<script language="javascript">
+    function CloseMe()
+    {
+        window.parent.CloseErpDialog();
+    }
+    function SetSelect()
+    {
+        var rv = "";
+        $("#" + CurDivName).find(".flcb").each(function(){
+            if(this.checked)
+            {
+                rv += $(this).next().html() + ",";
+            }
+        });
+        if(rv.length>1)
+        {
+            rv = rv.substring(0, rv.length-1);
+        }
+        eval("window.parent._ErpParentWin." + document.getElementById("hCallback").value.replaceAll("'", "\"").replace("ReturnValue", rv) + ";");
+        window.parent.CloseErpDialog();
+    }
+    
+    var AllSort;
+    function InitData()
+    {
+        
+        $("#hCallback").val(getUrlParam("callback"));
+        
+        CheckNet(function(){
+            $.ajax ({
+                type:"post",
+                url:__url + "/Mobile/Api/SysService.ashx",
+                dataType:"html",
+                data:"action=querySort&userId=" + __userId,
+                timeout:10000,
+                success:function(data){
+                    AllSort = eval(data);
+                    InitTree("", "");
+                },
+                complete: function (XHR, TS) { XHR = null; },
+                error: function (XMLHttpRequest, textStatus, errorThrown) { 
+                    ShowErr();
+                } 
+            });
+        }, function(){
+            ShowErr();
+            return;
+        });
+    }
+    function ShowErr()
+    {
+        $("#divForm").html("对不起，无法连接服务器，请您稍候再试");
+        //$("body").unmask();
+    }
+    var WinWidth;
+    var CurPid;
+    var CurDivName = "divForm1";
+    var NextDivName = "divForm";
+    function InitTree(pid, Dirct)
+    {
+        CurPid = pid;
+        var str = "<ul>";
+        if(pid=="")
+        {
+            str += "<li><s1><input type='checkbox' id='ca' onclick='CheckAll(this)' /><label for='ca'>全部分类</label></s1></li>";
+            $.each(AllSort, function(i,item){
+                if(item.sflbh.length==2)
+                {
+                    str += "<li";
+                    if(item.children>0)
+                    {
+                        str += " onclick=\"InitTree('"+item.sflbh+"','Next')\"";
+                    }
+                    str += "><s1><input class='flcb' type='checkbox' id='" + item.sflbh + "' /><label class='flcb_lb' for='" + item.sflbh + "'>"
+                            + item.sflbh + ":" + item.sflmc + "</label></s1>";
+                    if(item.children>0)
+                    {
+                        //str += "<s2 onclick=\"InitTree('"+item.sflbh+"','Next')\"></s2>";
+                        str += "<s2></s2>";
+                    }
+                    str += "</li>";
+                }
+            });
+            $("#tbBack").css("visibility", "hidden");
+        }
+        else
+        {
+            var pname = "";
+            str += "<li><s1><input type='checkbox' id='ca' onclick='CheckAll(this)' /><label for='ca'>" + pid + ":{#FLMC#}</label></s1></li>";
+            var l = CurPid.length + 2;
+            $.each(AllSort, function(i,item){
+                if(item.sflbh.length==l && item.sflbh.substring(0,l-2)==CurPid)
+                {
+                    str += "<li";
+                    if(item.children>0)
+                    {
+                        str += " onclick=\"InitTree('"+item.sflbh+"','Next')\"";
+                    }
+                    str += "><s1><input class='flcb' type='checkbox' id='"+item.sflbh+"' /><label class='flcb_lb' for='"+item.sflbh+"'>"
+                            + item.sflbh + ":" + item.sflmc + "</label></s1>";
+                    if(item.children>0)
+                    {
+                        //str += "<s2 onclick=\"InitTree('"+item.sflbh+"','Next')\"></s2>";
+                        str += "<s2></s2>";
+                    }
+                    str += "</li>";
+                }
+                if(item.sflbh==CurPid)
+                {
+                    pname = item.sflmc;
+                }
+            });
+            str = str.replaceAll("{#FLMC#}", pname);
+            $("#tbBack").css("visibility", "visible");
+        }
+        str += "</ul>";
+        
+        $("#" + NextDivName).html(str);
+        
+        if(Dirct=="")
+        {
+            //首次载入不动
+        }
+        else if(Dirct=="Next")
+        {
+            //下一级
+            $("#" + NextDivName).css("display", "");
+            $("#" + NextDivName).css("z-index", "1001");
+            $("#" + NextDivName).css("left",  WinWidth);
+            $("#" + CurDivName).css("z-index", "999");
+            $("#" + NextDivName).animate({left: 0}, 200);
+        }
+        else if(Dirct=="Pre")
+        {
+            //上一级
+            $("#" + NextDivName).css("left",  0);
+            $("#" + NextDivName).css("z-index", "999");
+            $("#" + CurDivName).css("z-index", "1001");
+            $("#" + CurDivName).animate({left: WinWidth}, 200);
+        }
+        
+        //交换一下
+        var t = CurDivName;
+        CurDivName = NextDivName;
+        NextDivName = t;
+        
+        //阻止事件冒泡
+        $(".flcb").click(function(e){
+            e.stopPropagation();
+        });
+        //阻止事件冒泡
+        $(".flcb_lb").click(function(e){
+            e.stopPropagation();
+        });
+    }
+    function Back()
+    {
+        if(CurPid.length==2)
+        {
+            InitTree("", 'Pre');
+        }
+        else
+        {
+            InitTree(CurPid.substring(0, CurPid.length-2), 'Pre');
+        }
+    }
+    
+    $().ready(function(){
+        $("#divForm").css("height", $(window).height() - 106);
+        WinWidth = $(window).width();
+        $("#divForm1").css("height", $(window).height() - 106);
+        $("#divForm1").css("left", 0-WinWidth);
+        InitData();
+    })
+</script>
+</body>
+</html>

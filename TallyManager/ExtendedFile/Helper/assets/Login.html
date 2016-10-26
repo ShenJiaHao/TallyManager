@@ -1,0 +1,157 @@
+
+<!DOCTYPE html>
+<html>
+<head id="Head1" runat="server">
+    <title>D咨询门店通</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
+    <meta name="format-detection" content="telephone=no">
+    <meta name="format-detection" content="email=no">
+    <link rel="stylesheet" type="text/css" href="js/style.css" />
+    <link href="js/mask/jquery.loadmask.css" rel="stylesheet" type="text/css" />
+    <style>
+    html, body
+    {
+        text-align:center;
+        margin:0px auto;
+        font:18px '微软雅黑' sans-serif;
+        background-color:#fff;
+    }
+    .bd
+    {
+        background:url(images/login.png) no-repeat center top #fff;
+    }
+    /*--------------------*/
+    #inputs
+    {
+	    -moz-box-sizing:border-box; 
+	    -webkit-box-sizing:border-box; 
+	    box-sizing:border-box;
+        display:inline-block;
+        z-index: 0;
+        padding:10px;
+        border:none;
+        margin-top:315px;
+        text-align:center;
+    }
+    #inputs lab {display:inline-block;width:80px;text-align:right;height:55px;color:#999;line-height:55px;vertical-align:center;}
+    #inputs .ipt {border:none;width:130px;font:18px '微软雅黑' sans-serif;background:none;height:50px;line-height:50px;vertical-align:center !important;
+        appearance:none; -moz-appearance:none;  -webkit-appearance:none;outline:none;}
+    .loginBtn {background:url(images/loginbtn.png) no-repeat;width:255px;height:52px;border:none;color:#fff;font-size:18px;margin-top:0px;}
+    </style>
+</head>
+<body onload="AutoWidth()">
+    <div class="bd">
+        <fieldset id="inputs">
+            <lab>企业ID：</lab>
+            <input type="text" class="ipt" name="epid" id="epid" value="0013" autofocus required /><br />
+            <lab>用户名：</lab>
+            <input type="text" class="ipt" name="username" id="username" value="0013" required  /><br />
+            <lab>密&nbsp;&nbsp;码：</lab>
+            <input type="password" class="ipt" name="password" id="password" value="888888" required/><br />
+        </fieldset>
+        <input type=button class="loginBtn" name="submit" id="submit" value="登&nbsp;&nbsp;陆" onclick="return Login()" />
+        <ul style="list-style:none;	padding:0;	margin:0;width:100%;text-align:left;">
+            <li style="text-align:center;padding:20px;color:#666;font-size:14px;">
+                长沙远望软件技术有限公司
+            </li>
+        </ul>
+    </div>
+    
+    <SCRIPT src="js/dapp.js" type="text/javascript"></SCRIPT>
+    <script src="js/Bridge.js" type="text/javascript"></script>
+    
+<script type="text/javascript" src="js/loadjs.js"></script>
+<script>
+    LoadJs("js/jquery.min.js", "");
+    LoadJs("js/common.js", "");
+    LoadJs("js/fastclick.js", "");
+</script>
+<SCRIPT src="js/mask/jquery.loadmask.js" type="text/javascript"></SCRIPT>
+<script>
+    
+    function AutoWidth()
+    {
+        $("#epid").width(($("#inputs").width()-100) + "px");
+        $("#username").width(($("#inputs").width()-100) + "px");
+        $("#password").width(($("#inputs").width()-100) + "px");
+    }
+    function Login()
+    {
+        CheckNet(
+
+            LoginTrue,
+            function(){
+                //如果无法联网，则直接登录Index.html（离线模式）
+                LoadUrl("Index.html", "Index.html");
+            }
+        );
+        return false;
+    }
+    function LoginTrue()
+    {
+//        alert('跳到LoginTure');
+
+        $("body").mask("正在载入，请稍候...");
+        var ep = "&epid=" + $("#epid").val();
+        $.ajax ({
+            type:"post",
+            url:__url + "/Mobile/Api/SysService.ashx",
+            dataType:"html",
+            data:"action=login&username=" + $("#username").val() + "&password=" + $("#password").val() + ep,
+            timeout:10000,
+            success:function(data){
+
+                $("body").unmask();
+                var rv = data.split("|");
+//                alert('rv:'+rv);
+                if(rv[0]=="ok")
+                {
+                    //存储本地
+                    SaveToLocalStorage(__url, $("#epid").val(), $("#username").val(), rv[1], rv[7], rv[3], rv[2], rv[4], rv[5], rv[6]);
+//                    alert('已经到这里');
+                    LoadUrl("Index.html", "Index.html");
+                }
+                else if(rv[0]=="nouser")
+                {
+                    alert("对不起，用户不存在！");
+                }
+                else if(rv[0]=="wrongpass")
+                {
+                    alert("对不起，密码错误！");
+                }
+                else if(rv[0]=="invalidchar")
+                {
+                    alert("对不起，您输入非法字符，请重新输入！");
+                }
+                else if(rv[0]=="maxpasserror")
+                {
+                    alert("对不起，您已超出一天内允许的密码错误最大次数，将不能再次登录了！");
+                }
+                else
+                {
+                    alert(data);
+                }
+            },
+            complete: function (XHR, TS) { XHR = null; },
+            error: function (XMLHttpRequest, textStatus, errorThrown) {
+                $("body").unmask();
+                LoadUrl("Index.html", "Index.html");
+            } 
+        });
+    }
+    
+    function NavToIndex(userId, deviceId)
+    {
+        LoadUrl("Index.html?action=loginAgent&userId=" + userId + "&deviceId=" + deviceId,
+            "Index.html?action=loginAgent&userId=" + userId + "&deviceId=" + deviceId);
+    }
+    
+    if(getUrlParam("action")!=null && getUrlParam("action")=="logout")
+    {
+        SaveToLocalStorage(__url, "", "", "", null, "", "0", "", "", "");
+    }
+    
+</script>
+</body>
+</html>

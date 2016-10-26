@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		181D4F071DC09645000A422E /* assets in Resources */ = {isa = PBXBuildFile; fileRef = 181D4F061DC09645000A422E /* assets */; };
 		18FB3DFB1DBF8811007EF2B6 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 18FB3DFA1DBF8811007EF2B6 /* main.m */; };
 		18FB3DFE1DBF8811007EF2B6 /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 18FB3DFD1DBF8811007EF2B6 /* AppDelegate.m */; };
 		18FB3E011DBF8811007EF2B6 /* ViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 18FB3E001DBF8811007EF2B6 /* ViewController.m */; };
@@ -59,7 +60,6 @@
 		18FB3EBB1DBF8838007EF2B6 /* WebViewJavascriptBridge_JS.m in Sources */ = {isa = PBXBuildFile; fileRef = 18FB3EB31DBF8838007EF2B6 /* WebViewJavascriptBridge_JS.m */; };
 		18FB3EBC1DBF8838007EF2B6 /* WebViewJavascriptBridgeBase.m in Sources */ = {isa = PBXBuildFile; fileRef = 18FB3EB51DBF8838007EF2B6 /* WebViewJavascriptBridgeBase.m */; };
 		18FB3EBD1DBF8838007EF2B6 /* WKWebViewJavascriptBridge.m in Sources */ = {isa = PBXBuildFile; fileRef = 18FB3EB71DBF8838007EF2B6 /* WKWebViewJavascriptBridge.m */; };
-		18FB3EBF1DBF884B007EF2B6 /* assets in Resources */ = {isa = PBXBuildFile; fileRef = 18FB3EBE1DBF884B007EF2B6 /* assets */; };
 		18FB3EC41DBF896C007EF2B6 /* libz.tbd in Frameworks */ = {isa = PBXBuildFile; fileRef = 18FB3EC31DBF896C007EF2B6 /* libz.tbd */; };
 /* End PBXBuildFile section */
 
@@ -81,6 +81,7 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		181D4F061DC09645000A422E /* assets */ = {isa = PBXFileReference; lastKnownFileType = folder; path = assets; sourceTree = "<group>"; };
 		18FB3DF61DBF8811007EF2B6 /* TallyManager.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = TallyManager.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		18FB3DFA1DBF8811007EF2B6 /* main.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
 		18FB3DFC1DBF8811007EF2B6 /* AppDelegate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = AppDelegate.h; sourceTree = "<group>"; };
@@ -189,7 +190,6 @@
 		18FB3EB51DBF8838007EF2B6 /* WebViewJavascriptBridgeBase.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = WebViewJavascriptBridgeBase.m; sourceTree = "<group>"; };
 		18FB3EB61DBF8838007EF2B6 /* WKWebViewJavascriptBridge.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = WKWebViewJavascriptBridge.h; sourceTree = "<group>"; };
 		18FB3EB71DBF8838007EF2B6 /* WKWebViewJavascriptBridge.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = WKWebViewJavascriptBridge.m; sourceTree = "<group>"; };
-		18FB3EBE1DBF884B007EF2B6 /* assets */ = {isa = PBXFileReference; lastKnownFileType = folder; path = assets; sourceTree = "<group>"; };
 		18FB3EC11DBF8926007EF2B6 /* PrefixHeader.pch */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PrefixHeader.pch; sourceTree = "<group>"; };
 		18FB3EC31DBF896C007EF2B6 /* libz.tbd */ = {isa = PBXFileReference; lastKnownFileType = "sourcecode.text-based-dylib-definition"; name = libz.tbd; path = usr/lib/libz.tbd; sourceTree = SDKROOT; };
 /* End PBXFileReference section */
@@ -290,7 +290,6 @@
 		18FB3E2C1DBF8831007EF2B6 /* ExtendedFile */ = {
 			isa = PBXGroup;
 			children = (
-				18FB3EBE1DBF884B007EF2B6 /* assets */,
 				18FB3E2D1DBF8831007EF2B6 /* AFNetworking */,
 				18FB3E571DBF8831007EF2B6 /* CachesFileManager.h */,
 				18FB3E581DBF8831007EF2B6 /* CachesFileManager.m */,
@@ -427,6 +426,7 @@
 		18FB3EAA1DBF8838007EF2B6 /* Helper */ = {
 			isa = PBXGroup;
 			children = (
+				181D4F061DC09645000A422E /* assets */,
 				18FB3EAB1DBF8838007EF2B6 /* Utilitys */,
 				18FB3EAF1DBF8838007EF2B6 /* WebViewJavascriptBridge */,
 			);
@@ -575,7 +575,7 @@
 			files = (
 				18FB3E091DBF8811007EF2B6 /* LaunchScreen.storyboard in Resources */,
 				18FB3E061DBF8811007EF2B6 /* Assets.xcassets in Resources */,
-				18FB3EBF1DBF884B007EF2B6 /* assets in Resources */,
+				181D4F071DC09645000A422E /* assets in Resources */,
 				18FB3E8D1DBF8831007EF2B6 /* LICENSE in Resources */,
 				18FB3EA31DBF8831007EF2B6 /* Info.plist in Resources */,
 				18FB3E041DBF8811007EF2B6 /* Main.storyboard in Resources */,
@@ -892,6 +892,7 @@
 				18FB3E251DBF8812007EF2B6 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 		18FB3E261DBF8812007EF2B6 /* Build configuration list for PBXNativeTarget "TallyManagerTests" */ = {
 			isa = XCConfigurationList;
@@ -900,6 +901,7 @@
 				18FB3E281DBF8812007EF2B6 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 		18FB3E291DBF8812007EF2B6 /* Build configuration list for PBXNativeTarget "TallyManagerUITests" */ = {
 			isa = XCConfigurationList;
@@ -908,6 +910,7 @@
 				18FB3E2B1DBF8812007EF2B6 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
 	};

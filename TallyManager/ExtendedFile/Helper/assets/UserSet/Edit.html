@@ -1,0 +1,238 @@
+﻿
+<!DOCTYPE html>
+<html>
+<head id="Head1" runat="server">
+    <title>D咨询门店通</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
+    <meta name="format-detection" content="telephone=no">
+    <meta name="format-detection" content="email=no">
+    <link href="../js/style.css" rel="stylesheet" type="text/css" />
+    <link href="../js/swiper.css" rel="stylesheet" type="text/css" />
+    <style>
+        .lb {width:30px !important;height:30px;border:solid 1px #bbb !important;border-right:none !important;}
+        .rb {width:30px !important;height:30px;border:solid 1px #bbb !important;border-left:none !important;}
+        .cb {width:60px !important;height:30px;border:solid 1px #bbb !important;text-align:center;}
+        top {text-align:center;padding-top:20px;}
+        tx {text-align:center;}
+        .header {position:fixed;top:0px;}
+        .box {margin-bottom:49px;margin-top:50px;}
+        .fl {width:100%;}
+        .pt {border-radius:50%;border:solid 1px #bbb;width:100px;height:100px;}
+    </style>
+</head>
+<body>
+    <form id="form1" runat="server">
+        <input type="hidden" id="hManageId" />
+        <div id="content">
+            <div class="header">
+                <toolbar><a href="javascript:Back();" rel="external" class="bakLink"></a></toolbar>
+                <tit>D咨询门店通-用户权限</tit>
+                <toolbar><a href="javascript:LoadUrl('../Index.html','Index.html')" class="setLink" rel="external" style="visibility:hidden;" ></a></toolbar>
+            </div>
+            <div class="box" id="divForm">
+            </div>
+            <div class="footer fbS">
+                <button type="button" class="black" name="submit" value="save" onclick="Post()">保存</button>
+            </div>
+        </div>
+    </form>
+
+<SCRIPT src="../js/dapp.js" type="text/javascript"></SCRIPT>
+<script src="../js/Bridge.js" type="text/javascript"></script>
+<script type="text/javascript" src="../js/loadjs.js"></script>
+<script>
+    LoadJs("js/jquery.min.js", "../");
+    LoadJs("js/common.js", "../");
+    LoadJs("js/fastclick.js", "../");
+    LoadJs("js/dialog.js", "../");
+</script>
+<script type="text/javascript" src="../js/swiper.js"></script>
+<script language="javascript">
+
+    function InitData()
+    {
+        var mid = getUrlParam("mid");
+        $("#hManageId").val(mid);
+        CheckNet(function(){
+            $.ajax ({
+                type:"post",
+                url:__url + "/Mobile/Api/SysService.ashx",
+                dataType:"html",
+                data:"action=queryUser&userId=" + __userId + "&mid=" + mid,
+                timeout:10000,
+                success:function(data){
+                    InitForm(data);
+                },
+                complete: function (XHR, TS) { XHR = null; },
+                error: function (XMLHttpRequest, textStatus, errorThrown) { 
+                    ShowErr();
+                } 
+            });
+        }, function(){
+            ShowErr();
+            return;
+        });
+    }
+    function ShowErr()
+    {
+        $("#divForm").html("对不起，无法连接服务器，请您稍候再试");
+        //$("body").unmask();
+    }
+    function InitForm(d)
+    {
+        var obj = eval(d)[0];
+        var str = "<top><img src='../images/nopic.gif' class='pt' /><tx id='t'>" + obj.manageName + "</tx></top>";
+        str += "<ul>";
+        str += "<li><lab>职务：</lab><txt>" + obj.job + "</txt></li>";
+        str += "<li><lab>角色：</lab><txt>" + GetRoleName(obj.roleName) + "</txt></li>";
+        str += "<li><lab>分类权限：</lab><txt>";
+        str += "<input type='hidden' id='txtPowerFl' value='" + obj.power_Fl + "'>";
+        str += "<input type='hidden' id='txtPowerFlName' value='" + obj.power_FlName + "'>";
+        str += "<table id='fl' class='fl'>";
+        var fl = obj.power_Fl.split(",");
+        var fn = obj.power_FlName.split(",");
+        for(var i=0;i<fl.length;i++)
+        {
+            str += "<tr><td>" + fl[i];
+            str += "</td><td>" + fn[i];
+            str += "</td><td><input type='button' class='closebtn' value='' onclick='Remove(\""+fl[i]+"\")' /></td></tr>";
+        }
+        str += "</table>";
+        str += "<input type='button' value='选择分类' class='black' onclick='SelectFl()' /></txt></li>";
+		str += "</ul>";
+        $("#divForm").html(str);
+    }
+    
+    function Remove(flbh)
+    {
+        var fl = $("#txtPowerFl").val().split(",");
+        var fn = $("#txtPowerFlName").val().split(",");
+        var str = "";
+        var fls = "";
+        var flns = "";
+        for(var i=0;i<fl.length;i++)
+        {
+            if(fl[i]!=flbh)
+            {
+                str += "<tr><td>" + fl[i];
+                str += "</td><td>" + fn[i];
+                str += "</td><td><input type='button' class='closebtn' value='' onclick='Remove(\""+fl[i]+"\")' /></td></tr>";
+                
+                fls += fl[i] + ",";
+                flns += fn[i] + ",";
+            }
+        }
+        if(fls.length>1)
+        {
+            fls = fls.substring(0, fls.length-1);
+        }
+        if(flns.length>1)
+        {
+            flns = flns.substring(0, flns.length-1);
+        }
+        $("#txtPowerFl").val(fls);
+        $("#txtPowerFlName").val(flns);
+        $("#fl").html(str);
+    }
+    
+    $().ready(function(){
+        InitData();
+    })
+    function GetRoleName(roleName)
+    {
+        if(roleName=="0")
+        {
+            return "理货员";
+        }
+        else if(roleName=="1")
+        {
+            return "店长";
+        }
+        else if(roleName=="2")
+        {
+            return "指导员";
+        }
+        else if(roleName=="3")
+        {
+            return "经理";
+        }
+        else
+        {
+            return "未指定";
+        }
+    }
+    function Back()
+    {
+        LoadUrl("Index.html", "UserSet/Index.html");
+    }
+    
+    function Post()
+    {
+        CheckNet(function(){
+            $.ajax ({
+                type:"post",
+                url:__url + "/Mobile/Api/SysService.ashx",
+                dataType:"html",
+                data:"action=updateUser&userId=" + __userId + "&mid=" + $("#hManageId").val() + "&power_Fl=" + $("#txtPowerFl").val(),
+                timeout:10000,
+                success:function(data){
+                    if(data=="ok")
+                    {
+                        alert("提交成功！");
+                    }
+                    else
+                    {
+                        alert("提交失败！请您稍候再试！");
+                    }
+                },
+                complete: function (XHR, TS) { XHR = null; },
+                error: function (XMLHttpRequest, textStatus, errorThrown) { 
+                    alert("提交失败！请您稍候再试！");
+                } 
+            });
+        }, function(){
+            alert("对不起，无法连接服务器，请您稍候再试！");
+            return;
+        })
+    }
+    
+    function SelectFl()
+    {
+        ShowErpDialog("../Common/SelectSort.html", "请选择分类", 1, 1, "SetFl('ReturnValue')", window);
+    }
+    function SetFl(rv)
+    {
+        var r = rv.split(",");
+        var str = "";
+        var str1 = "";
+        var html = "";
+        for(var i=0;i<r.length;i++)
+        {
+            if(r[i]!="")
+            {
+                var rr = r[i].split(":");
+                str += rr[0] + ",";
+                str1 += rr[1] + ",";
+                
+                html += "<tr><td>" + rr[0];
+                html += "</td><td>" + rr[1];
+                html += "</td><td><input type='button' class='closebtn' value='' onclick='Remove(\""+rr[0]+"\")' /></td></tr>";
+            }
+        }
+        if(str.length>1)
+        {
+            str = str.substring(0, str.length-1);
+        }
+        if(str1.length>1)
+        {
+            str1 = str1.substring(0, str1.length-1);
+        }
+        $("#txtPowerFl").val(str);
+        $("#txtPowerFlName").val(str1);
+        
+        $("#fl").html(html);
+    }
+</script>
+</body>
+</html>

@@ -84,7 +84,7 @@
 {
     [UIApplication sharedApplication].networkActivityIndicatorVisible = NO;
     
-    NSString *path = [[NSBundle mainBundle] resourcePath];//pathForResource:@"index" ofType:@"html"
+//    NSString *path = [[NSBundle mainBundle] resourcePath];//pathForResource:@"index" ofType:@"html"
     
     //    NSString *path1 =[NSString stringWithFormat:@"%@%@",path,@"/assets/js/dapp.js"];
     //
