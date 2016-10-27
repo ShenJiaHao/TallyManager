@@ -78,10 +78,10 @@ var callHandler = handler('callHandler');
 //
 var bridge_GetWebRoot = function(data) {
 
-//    alert('js调用OC方法:GetWebRoot');
+
     return new Promise(function (resolve, reject) {
         callHandler('bridge_GetWebRoot', data, function (response) {
-            //alert(response);
+            
             resolve(response)
         })
     })
@@ -93,7 +93,7 @@ var bridge_CheckNetState = function(data) {
 
     return new Promise(function (resolve, reject) {
         callHandler('bridge_CheckNetState', data, function (response) {
-            //alert(response);
+                    
             resolve(response)
         })
     })
@@ -113,11 +113,9 @@ var bridge_ShowToast = function(data) {
 
 var bridge_GetAppType = function(data) {
 
-//    alert('js调用OC方法:GetAppType');
-
     return new Promise(function (resolve, reject) {
         callHandler('bridge_GetAppType', data, function (response) {
-            //alert(response);
+            
             resolve(response)
         })
     })
@@ -130,7 +128,7 @@ var bridge_LoadLocalUrl = function(data) {
 
     return new Promise(function (resolve, reject) {
         callHandler('bridge_LoadLocalUrl', data, function (response) {
-            //alert(response);
+            
             resolve(response)
         })
     })

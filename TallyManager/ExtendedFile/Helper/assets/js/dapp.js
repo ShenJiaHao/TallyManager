@@ -16,10 +16,10 @@ GetWebRoot: function(){
 
 },
 
-SetWebRoot: function(){
+SetWebRoot: function(str){
     //alert("调用了dapp的getwebroot!");
     //return "csywhty2010.f3322.org:8005";
-    return bridge_SetWebRoot(data);
+    return bridge_SetWebRoot(str);
 },
     
 LoadLocalUrl:function(url){
@@ -70,10 +70,7 @@ ShowToast:function(str){
 
 GetAppType:function(){
 
-//    alert("调用了dapp的GetAppType!");
-
-
-    return bridge_GetAppType(data);
+    return bridge_GetAppType();
 },
 
 AutoUpdate:function(){

@@ -74,12 +74,14 @@
     [self.bridge registerHandler:@"bridge_ShowToast" handler:^(id data, WVJBResponseCallback responseCallback) {
         NSLog(@"显示系统提示框:%@",data);
         
-        // 解析网页传过来的数据
-        NSData *dataDic = [NSData dataWithData:data];
-//        NSDictionary *dic = (NSDictionary *)dataDic;
-        NSString *str = [[NSString alloc]initWithData:dataDic encoding:NSUTF8StringEncoding];
+        //注释掉这一行 因为传过来的文字是str 不用data解析
         
-        [self.dapp ShowToast:str];
+        // 解析网页传过来的数据
+//        NSData *dataDic = [NSData dataWithData:data];
+////        NSDictionary *dic = (NSDictionary *)dataDic;
+//        NSString *str = [[NSString alloc]initWithData:dataDic encoding:NSUTF8StringEncoding];
+//        NSLog(@"要显示的文字是: %@", str);
+        [self.dapp ShowToast:data];
         
         responseCallback(@"");
     }];
@@ -106,13 +108,11 @@
     [self.bridge registerHandler:@"bridge_SetWebRoot" handler:^(id data, WVJBResponseCallback responseCallback) {
         NSLog(@"设置服务器地址:%@",data);
         
-        NSData *dataDic = [NSData dataWithData:data];
-        NSString *str = [[NSString alloc]initWithData:dataDic encoding:NSUTF8StringEncoding];
-        [self.dapp SetWebRoot:str];
+//        NSData *dataDic = [NSData dataWithData:data];
+//        NSString *str = [[NSString alloc]initWithData:dataDic encoding:NSUTF8StringEncoding];
+        [self.dapp SetWebRoot:data];
         responseCallback(@"");
     }];
-    
-
 }
 
 - (DappOCMethodClass *)dapp
