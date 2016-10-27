@@ -88,7 +88,7 @@
     
     // 获取当前壳模型
     [self.bridge registerHandler:@"bridge_GetAppType" handler:^(id data, WVJBResponseCallback responseCallback) {
-        
+        NSLog(@"开始获取app信息");
         responseCallback([self.dapp GetAppType]);
     }];
     

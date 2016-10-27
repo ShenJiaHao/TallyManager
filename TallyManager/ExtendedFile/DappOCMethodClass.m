@@ -45,9 +45,9 @@
 - (NSString *)getWebRoot{
     NSString *rootUrl = [NSString new];
     NSUserDefaults *user = [NSUserDefaults standardUserDefaults];
-    BOOL judge = [user boolForKey:@"rootUrl"];
+    NSString * judge = [user stringForKey:@"rootUrl"];
     
-    rootUrl = judge ? [user objectForKey:@"rootUrl"] : @"csywhty2010.f3322.org:8005";
+    rootUrl = judge ? judge : @"csywhty2010.f3322.org:8005";
     [user setObject:rootUrl forKey:@"rootUrl"];
     return rootUrl;
 }
@@ -110,7 +110,13 @@
  */
 - (void)SetWebRoot:(NSString *) str{
     NSUserDefaults *user = [NSUserDefaults standardUserDefaults];
-    [user setObject:str forKey:@"rootUrl"];
+    NSString *newStr = [NSString stringWithString:str];
+    [user removeObjectForKey:@"rootUrl"];
+    [user setObject:newStr forKey:@"rootUrl"];
+    NSString *temp = [user objectForKey:@"rootUrl"];
+    
+    NSLog(@"服务器地址为 %@", temp);
+    
 }
     
 
